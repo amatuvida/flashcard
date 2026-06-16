@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>영어 단어 학습</title>
+  <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <style>
+    :root {
+      --bg: #f0f4ff;
+      --white: #ffffff;
+      --indigo: #4f46e5;
+      --indigo-light: #eef2ff;
+      --green: #10b981;
+      --green-light: #ecfdf5;
+      --red: #ef4444;
+      --red-light: #fef2f2;
+      --yellow: #f59e0b;
+      --yellow-light: #fffbeb;
+      --teal: #0891b2;
+      --teal-light: #e0f2fe;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --text: #1e293b;
+      --text2: #64748b;
+      --text3: #94a3b8;
+      --border: #e2e8f0;
+      --font: 'Pretendard', -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; -webkit-text-size-adjust: 100%; }
+    .wrap { max-width: 600px; margin: 0 auto; padding: 1rem 1rem 4rem; }
+
+    /* ── 탭 네비 ── */
+    .tab-nav {
+      display: flex; gap: 6px; margin-bottom: 1.5rem;
+      background: var(--white); border-radius: 16px; padding: 6px;
+      box-shadow: 0 2px 12px rgba(79,70,229,.08);
+    }
+    .tab-nav button {
+      flex: 1; height: 42px; border: none; border-radius: 11px;
+      font-size: 13px; font-weight: 700; font-family: var(--font);
+      cursor: pointer; transition: all .2s; color: var(--text3);
+      background: transparent; -webkit-tap-highlight-color: transparent;
+    }
+    .tab-nav button.active { color: #fff; }
+    .tab-nav button[data-tab="test"].active  { background: var(--indigo); }
+    .tab-nav button[data-tab="dictation"].active { background: var(--teal); }
+    .tab-nav button[data-tab="wordbook"].active  { background: var(--purple); }
+
+    /* ── 공통 ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .section-title { font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .06em; }
+    .unit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 1.25rem; }
+    .unit-card {
+      background: var(--white); border: 2px solid var(--border); border-radius: 12px;
+      padding: 10px 6px; text-align: center; cursor: pointer;
+      transition: all .2s; position: relative; -webkit-tap-highlight-color: transparent;
+    }
+    .unit-card:active { transform: scale(.96); }
+    .unit-card.sel { border-color: var(--indigo); background: var(--indigo-light); }
+    .unit-card .u-label { font-size: 13px; font-weight: 700; }
+    .unit-card.sel .u-label { color: var(--indigo); }
+    .unit-card .u-name { font-size: 9px; color: var(--text3); margin-top: 2px; line-height: 1.3; }
+    .unit-card .u-check { display: none; position: absolute; top: 5px; right: 5px; width: 14px; height: 14px; background: var(--indigo); border-radius: 50%; align-items: center; justify-content: center; font-size: 8px; color: #fff; }
+    .unit-card.sel .u-check { display: flex; }
+    .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+    .sel-info { font-size: 13px; color: var(--text2); text-align: center; margin-bottom: 1rem; min-height: 18px; }
+    .btn {
+      width: 100%; height: 48px; border-radius: 14px; border: none;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: var(--font); transition: all .15s; -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { transform: scale(.97); opacity: .85; }
+    .btn:disabled { opacity: .35; cursor: default; }
+    .btn-indigo { background: var(--indigo); color: #fff; }
+    .btn-teal   { background: var(--teal); color: #fff; }
+    .btn-purple { background: var(--purple); color: #fff; }
+    .btn-green  { background: var(--green); color: #fff; }
+    .btn-yellow { background: var(--yellow); color: #fff; }
+    .btn-outline { background: var(--white); border: 2px solid var(--border); color: var(--text2); }
+    .btn-row { display: flex; gap: 8px; }
+    .btn-row .btn { flex: 1; }
+    .btn-sm { height: 36px; font-size: 12px; width: auto; padding: 0 14px; border-radius: 10px; }
+    .prog-wrap { margin-bottom: 1.25rem; }
+    .prog-top { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .prog-lbl { font-size: 12px; color: var(--text2); font-weight: 600; }
+    .prog-bar { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 99px; transition: width .4s; }
+    .fill-indigo { background: linear-gradient(90deg, var(--indigo), #a78bfa); }
+    .fill-teal   { background: linear-gradient(90deg, var(--teal), #06b6d4); }
+    .back-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+    .back-lbl { font-size: 13px; color: var(--text2); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .feedback { display: none; border-radius: 12px; padding: 11px 16px; font-size: 14px; font-weight: 600; text-align: center; margin-bottom: 1rem; }
+    .feedback.ok  { display: block; background: var(--green-light);  color: var(--green); }
+    .feedback.ng  { display: block; background: var(--red-light);    color: var(--red); }
+    .feedback.try { display: block; background: var(--yellow-light); color: var(--yellow); }
+
+    /* ── 타이핑 테스트 ── */
+    .q-card {
+      background: var(--white); border-radius: 20px; padding: 1.75rem 1.5rem;
+      text-align: center; margin-bottom: 1.25rem;
+      box-shadow: 0 4px 20px rgba(79,70,229,.07);
+    }
+    .q-badge { display: inline-block; font-size: 11px; font-weight: 700; color: var(--indigo); background: var(--indigo-light); border-radius: 99px; padding: 3px 12px; margin-bottom: 12px; }
+    .q-prompt { font-size: 13px; color: var(--text2); margin-bottom: 6px; }
+    .q-word { font-size: 26px; font-weight: 700; color: var(--text); word-break: keep-all; line-height: 1.35; }
+    .q-phonetic { font-size: 13px; color: #a78bfa; margin-top: 5px; font-family: monospace; }
+    .snd-btn {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+      padding: 8px 18px; border-radius: 99px; border: 2px solid var(--indigo);
+      background: transparent; color: var(--indigo); font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: var(--font); -webkit-tap-highlight-color: transparent;
+    }
+    .snd-btn:active { background: var(--indigo-light); }
+    .ans-input {
+      width: 100%; height: 52px; border-radius: 14px; border: 2px solid var(--border);
+      background: var(--white); font-size: 18px; font-weight: 600; text-align: center;
+      font-family: var(--font); color: var(--text); outline: none; transition: border-color .2s;
+      -webkit-appearance: none; margin-bottom: 1rem;
+    }
+    .ans-input:focus { border-color: var(--indigo); }
+    .ans-input.ok  { border-color: var(--green);  background: var(--green-light);  color: var(--green); }
+    .ans-input.ng  { border-color: var(--red);    background: var(--red-light);    color: var(--red); }
+    .ans-input.try { border-color: var(--yellow); background: var(--yellow-light); }
+    .result-card { background: var(--white); border-radius: 20px; padding: 2rem 1.5rem; text-align: center; box-shadow: 0 4px 20px rgba(79,70,229,.07); margin-bottom: 1.25rem; }
+    .res-emoji  { font-size: 52px; margin-bottom: 10px; }
+    .res-score  { font-size: 38px; font-weight: 800; color: var(--indigo); margin: 10px 0 4px; }
+    .res-sub    { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; }
+    .res-list   { margin-bottom: 1.25rem; }
+    .res-item   { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; margin-bottom: 5px; font-size: 13px; }
+    .res-item.ok { background: var(--green-light); }
+    .res-item.ng { background: var(--red-light); }
+    .res-item .ri-w { font-weight: 700; flex: 1; }
+    .res-item.ok .ri-w { color: var(--green); }
+    .res-item.ng .ri-w { color: var(--red); }
+    .res-item .ri-d { font-size: 11px; color: var(--text2); }
+
+    /* ── 받아쓰기 ── */
+    .speed-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; background: var(--white); border-radius: 14px; padding: 12px 16px; }
+    .speed-row label { font-size: 13px; font-weight: 600; color: var(--text2); white-space: nowrap; }
+    .speed-row input[type=range] { flex: 1; accent-color: var(--teal); }
+    .speed-val { font-size: 13px; font-weight: 700; color: var(--teal); min-width: 32px; text-align: right; }
+    .dict-card {
+      background: var(--white); border-radius: 20px; padding: 1.75rem 1.5rem;
+      text-align: center; margin-bottom: 1.25rem;
+      box-shadow: 0 4px 20px rgba(8,145,178,.1);
+      border: 2px solid var(--teal-light);
+    }
+    .dict-num { font-size: 12px; font-weight: 700; color: var(--teal); margin-bottom: 8px; }
+    .dict-meaning { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px; word-break: keep-all; }
+    .dict-hint { font-size: 12px; color: var(--text3); }
+    .dict-controls { display: flex; gap: 8px; margin-bottom: 1rem; }
+    .dict-controls .btn { height: 46px; font-size: 14px; }
+    .answer-sheet {
+      background: var(--white); border-radius: 16px; padding: 1.25rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    }
+    .answer-sheet h3 { font-size: 14px; font-weight: 700; color: var(--teal); margin-bottom: 12px; }
+    .ans-table { width: 100%; border-collapse: collapse; }
+    .ans-table th { font-size: 11px; color: var(--text3); font-weight: 600; padding: 4px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+    .ans-table td { font-size: 13px; padding: 8px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .ans-table tr:last-child td { border-bottom: none; }
+    .ans-num { font-weight: 700; color: var(--text3); width: 28px; }
+    .ans-ko  { color: var(--text2); }
+    .ans-en  { font-weight: 700; color: var(--indigo); }
+    .ans-ph  { font-size: 11px; color: #a78bfa; font-family: monospace; }
+
+    /* ── 단어장 ── */
+    .wb-unit-card { background: var(--white); border: 2px solid var(--border); border-radius: 12px; padding: 10px 6px; text-align: center; cursor: pointer; transition: all .2s; -webkit-tap-highlight-color: transparent; }
+    .wb-unit-card:active { transform: scale(.96); }
+    .wb-unit-card .u-label { font-size: 13px; font-weight: 700; }
+    .wb-unit-card .u-name { font-size: 9px; color: var(--text3); margin-top: 2px; line-height: 1.3; }
+    .flip-card-wrap { perspective: 1000px; width: 100%; margin-bottom: 1.25rem; }
+    .flip-card { position: relative; width: 100%; min-height: 200px; transform-style: preserve-3d; transition: transform .45s ease; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .flip-card.flipped { transform: rotateY(180deg); }
+    .flip-front, .flip-back {
+      position: absolute; width: 100%; min-height: 200px;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      border-radius: 20px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 2rem 1.5rem; text-align: center;
+    }
+    .flip-front { background: var(--white); border: 2px solid var(--purple-light); box-shadow: 0 4px 20px rgba(124,58,237,.08); }
+    .flip-back  { background: var(--purple-light); border: 2px solid var(--purple); transform: rotateY(180deg); box-shadow: 0 4px 20px rgba(124,58,237,.15); }
+    .wb-side-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; margin-bottom: 12px; }
+    .flip-front .wb-side-label { color: var(--purple); }
+    .flip-back  .wb-side-label { color: var(--purple); }
+    .wb-ko   { font-size: 22px; font-weight: 700; color: var(--text); word-break: keep-all; line-height: 1.4; }
+    .wb-en   { font-size: 26px; font-weight: 800; color: var(--purple); }
+    .wb-ph   { font-size: 14px; color: #a78bfa; margin-top: 8px; font-family: monospace; }
+    .wb-hint { font-size: 12px; color: var(--text3); margin-top: 8px; }
+    .wb-nav  { display: flex; gap: 8px; justify-content: center; margin-bottom: 1rem; }
+    .wb-nav .btn { max-width: 140px; height: 46px; }
+    .wb-prog { text-align: center; font-size: 13px; color: var(--text2); font-weight: 600; margin-bottom: 1rem; }
+
+    @media (max-width: 400px) {
+      .tab-nav button { font-size: 11px; }
+      .q-word { font-size: 20px; }
+      .wb-en  { font-size: 20px; }
+      .wb-ko  { font-size: 18px; }
+      .dict-meaning { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 탭 네비 -->
+  <nav class="tab-nav">
+    <button data-tab="test" class="active" onclick="switchTab('test')">✏️ 타이핑 테스트</button>
+    <button data-tab="dictation" onclick="switchTab('dictation')">🎧 받아쓰기</button>
+    <button data-tab="wordbook" onclick="switchTab('wordbook')">📖 단어장</button>
+  </nav>
+
+  <!-- ══════════════ 탭1: 타이핑 테스트 ══════════════ -->
+  <div id="tab-test" class="screen active">
+
+    <!-- 선택 화면 -->
+    <div id="t-select">
+      <div class="section-title">단원 선택</div>
+      <div class="unit-grid" id="t-unitGrid"></div>
+      <div class="divider"></div>
+      <div class="section-title">문제 방식</div>
+      <div style="display:flex;gap:8px;margin-bottom:1.25rem;">
+        <div class="unit-card sel" id="tm-listen" style="flex:1;padding:14px 10px;" onclick="setTMode('listen')">
+          <div style="font-size:20px;margin-bottom:4px;">🔊</div>
+          <div class="u-label">듣고 쓰기</div>
+          <div class="u-name">발음 듣고 영어 철자</div>
+        </div>
+        <div class="unit-card" id="tm-meaning" style="flex:1;padding:14px 10px;" onclick="setTMode('meaning')">
+          <div style="font-size:20px;margin-bottom:4px;">🇰🇷</div>
+          <div class="u-label">뜻 보고 쓰기</div>
+          <div class="u-name">한국어 뜻 → 영어</div>
+        </div>
+      </div>
+      <div class="sel-info" id="t-selInfo">단원을 선택하세요</div>
+      <div class="btn-row">
+        <button class="btn btn-indigo" id="t-btnStart" onclick="tStart(false)" disabled>선택 학습</button>
+        <button class="btn btn-yellow" style="flex:0 0 auto;width:auto;padding:0 18px;" onclick="tStart(true)">🎲 전체</button>
+      </div>
+    </div>
+
+    <!-- 테스트 진행 -->
+    <div id="t-game" style="display:none">
+      <div class="back-bar">
+        <button class="btn btn-outline btn-sm" onclick="tBack()">← 나가기</button>
+        <span class="back-lbl" id="t-gameLabel"></span>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-top">
+          <span class="prog-lbl" id="t-progLbl">1 / 25</span>
+          <span class="prog-lbl" style="color:var(--indigo)" id="t-scoreLbl">✅ 0  ❌ 0</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill fill-indigo" id="t-progFill" style="width:0%"></div></div>
+      </div>
+      <div class="q-card">
+        <div class="q-badge" id="t-badge"></div>
+        <div class="q-prompt" id="t-prompt"></div>
+        <div class="q-word" id="t-word"></div>
+        <div class="q-phonetic" id="t-phonetic"></div>
+        <button class="snd-btn" id="t-sndBtn" onclick="tSpeak()" style="display:none">🔊 발음 듣기</button>
+      </div>
+      <input class="ans-input" id="t-input" type="text" placeholder="영어 단어 입력" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" onkeydown="tKey(event)">
+      <div class="feedback" id="t-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-indigo" id="t-submit" onclick="tSubmit()">확인</button>
+        <button class="btn btn-outline" id="t-next" onclick="tNext()" style="display:none">다음 →</button>
+      </div>
+      <button class="btn btn-yellow" onclick="tShuffle()" style="margin-top:8px;">🎲 순서 섞기</button>
+    </div>
+
+    <!-- 결과 -->
+    <div id="t-result" style="display:none">
+      <div class="result-card">
+        <div class="res-emoji" id="t-resEmoji"></div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:6px;">테스트 완료!</div>
+        <div class="res-score" id="t-resScore"></div>
+        <div class="res-sub" id="t-resSub"></div>
+      </div>
+      <div class="res-list" id="t-resList"></div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-red" id="t-retryWrong" onclick="tRetryWrong()" style="background:var(--red);color:#fff;">❌ 틀린 문제만 다시</button>
+        <button class="btn btn-yellow" onclick="tStart(true)">🎲 전체 랜덤으로 다시</button>
+        <button class="btn btn-outline" onclick="tBack()">← 단원 선택으로</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 탭2: 받아쓰기 ══════════════ -->
+  <div id="tab-dictation" class="screen">
+
+    <!-- 선택 화면 -->
+    <div id="d-select">
+      <div class="section-title">단원 선택</div>
+      <div class="unit-grid" id="d-unitGrid"></div>
+      <div class="divider"></div>
+      <div class="speed-row">
+        <label>읽기 속도</label>
+        <input type="range" id="d-speed" min="0.5" max="1.5" step="0.1" value="0.8" oninput="updateSpeed()">
+        <span class="speed-val" id="d-speedVal">0.8×</span>
+      </div>
+      <div class="sel-info" id="d-selInfo">단원을 선택하세요</div>
+      <div class="btn-row">
+        <button class="btn btn-teal" id="d-btnStart" onclick="dStart(false)" disabled>선택 받아쓰기</button>
+        <button class="btn btn-yellow" style="flex:0 0 auto;width:auto;padding:0 18px;" onclick="dStart(true)">🎲 전체</button>
+      </div>
+    </div>
+
+    <!-- 받아쓰기 진행 -->
+    <div id="d-game" style="display:none">
+      <div class="back-bar">
+        <button class="btn btn-outline btn-sm" onclick="dBack()">← 나가기</button>
+        <span class="back-lbl" id="d-gameLabel"></span>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-top">
+          <span class="prog-lbl" id="d-progLbl">1 / 25</span>
+          <span class="prog-lbl" style="color:var(--teal)">받아쓰기 중</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill fill-teal" id="d-progFill" style="width:0%"></div></div>
+      </div>
+      <div class="dict-card">
+        <div class="dict-num" id="d-num"></div>
+        <div class="dict-meaning" id="d-meaning"></div>
+        <div class="dict-hint" id="d-hint"></div>
+      </div>
+      <div class="dict-controls">
+        <button class="btn btn-teal" onclick="dSpeak()">🔊 다시 듣기</button>
+        <button class="btn btn-outline" onclick="dPrev()" id="d-prevBtn">◀ 이전</button>
+        <button class="btn btn-outline" onclick="dNext()" id="d-nextBtn">다음 ▶</button>
+      </div>
+      <div class="speed-row">
+        <label>속도</label>
+        <input type="range" id="d-speed2" min="0.5" max="1.5" step="0.1" value="0.8" oninput="updateSpeed2()">
+        <span class="speed-val" id="d-speedVal2">0.8×</span>
+      </div>
+      <div class="btn-row" style="margin-top:4px;">
+        <button class="btn btn-green" onclick="dShowAnswer()">📋 정답 확인</button>
+        <button class="btn" id="d-autoBtn" onclick="dToggleAuto()" style="background:var(--purple);color:#fff;">▶ 자동재생</button>
+      </div>
+      <button class="btn btn-yellow" onclick="dShuffle()" style="margin-top:8px;">🎲 순서 섞기</button>
+      <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:12px;">
+        ⌨️ <b>Space</b> 다시 듣기 &nbsp;·&nbsp; <b>←→</b> 이전/다음 &nbsp;·&nbsp; <b>Enter</b> 자동재생
+      </div>
+    </div>
+
+    <!-- 정답지 -->
+    <div id="d-answer" style="display:none">
+      <div class="back-bar">
+        <button class="btn btn-outline btn-sm" onclick="dHideAnswer()">← 돌아가기</button>
+        <span class="back-lbl">📋 정답지</span>
+      </div>
+      <div class="answer-sheet">
+        <h3>📋 정답지</h3>
+        <table class="ans-table">
+          <thead><tr><th>#</th><th>한국어 뜻</th><th>영어 단어</th><th>발음</th></tr></thead>
+          <tbody id="d-answerBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 탭3: 단어장 ══════════════ -->
+  <div id="tab-wordbook" class="screen">
+
+    <!-- 단원 선택 -->
+    <div id="w-select">
+      <div class="section-title">단원 선택</div>
+      <div class="unit-grid" id="w-unitGrid"></div>
+      <div class="divider"></div>
+      <div class="btn-row">
+        <button class="btn btn-purple" id="w-btnStart" onclick="wStart(false)" disabled>단어장 보기</button>
+        <button class="btn btn-yellow" style="flex:0 0 auto;width:auto;padding:0 18px;" onclick="wStart(true)">🎲 전체</button>
+      </div>
+    </div>
+
+    <!-- 단어장 뷰 -->
+    <div id="w-game" style="display:none">
+      <div class="back-bar">
+        <button class="btn btn-outline btn-sm" onclick="wBack()">← 나가기</button>
+        <span class="back-lbl" id="w-gameLabel"></span>
+      </div>
+      <div class="wb-prog" id="w-prog"></div>
+      <div class="flip-card-wrap">
+        <div class="flip-card" id="w-card" onclick="wFlip()">
+          <div class="flip-front">
+            <div class="wb-side-label">🇰🇷 한국어 뜻</div>
+            <div class="wb-ko" id="w-ko"></div>
+            <div class="wb-hint">탭하면 영어 정답이 보여요</div>
+          </div>
+          <div class="flip-back">
+            <div class="wb-side-label">🔤 영어 단어</div>
+            <div class="wb-en" id="w-en"></div>
+            <div class="wb-ph" id="w-ph"></div>
+          </div>
+        </div>
+      </div>
+      <div class="wb-nav">
+        <button class="btn btn-outline" onclick="wGo(-1)" id="w-prev">◀ 이전</button>
+        <button class="btn btn-purple" onclick="wFlip()">🔄 뒤집기</button>
+        <button class="btn btn-outline" onclick="wGo(1)" id="w-next">다음 ▶</button>
+      </div>
+      <button class="btn btn-yellow" onclick="wShuffle()" style="margin-top:4px;">🎲 순서 섞기</button>
+      <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:12px;">
+        ⌨️ <b>Space</b> 뒤집기 &nbsp;·&nbsp; <b>←→</b> 이전/다음
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+const UNITS=[
+  {id:'3-1',label:'3-1',name:'방향·감정·조동사',words:[{word:"which",meaning:"어느 것(쪽)의",phonetic:"/wɪtʃ/"},{word:"away",meaning:"떨어져, 다른 데(로)",phonetic:"/əˈweɪ/"},{word:"along",meaning:"~을 따라서",phonetic:"/əˈlɒŋ/"},{word:"let",meaning:"시키다, ~하게 해주다",phonetic:"/lɛt/"},{word:"without",meaning:"~없이, ~하지 않고",phonetic:"/wɪðˈaʊt/"},{word:"own",meaning:"자신의, 소유하다",phonetic:"/oʊn/"},{word:"owner",meaning:"주인, 소유자",phonetic:"/ˈoʊnər/"},{word:"afraid",meaning:"두려운, 겁내는",phonetic:"/əˈfreɪd/"},{word:"past",meaning:"과거, 지난, 지나서",phonetic:"/pæst/"},{word:"present",meaning:"선물, 현재(의), 참석한",phonetic:"/ˈprɛzənt/"},{word:"camel",meaning:"낙타",phonetic:"/ˈkæm.əl/"},{word:"lizard",meaning:"도마뱀",phonetic:"/ˈlɪz.ərd/"},{word:"worry",meaning:"걱정, 걱정하다",phonetic:"/ˈwʌr.i/"},{word:"worried",meaning:"걱정하는, 우려하는",phonetic:"/ˈwʌr.id/"},{word:"between",meaning:"~의 사이에(중간에)",phonetic:"/bɪˈtwiːn/"},{word:"ever",meaning:"언제나 / 한번도 ~한적 없는",phonetic:"/ˈɛv.ər/"},{word:"pretty",meaning:"예쁜, 꽤, 상당히",phonetic:"/ˈprɪt.i/"},{word:"pay",meaning:"지불하다, 임금",phonetic:"/peɪ/"},{word:"else",meaning:"그 밖에, 또 다른",phonetic:"/ɛls/"},{word:"mistake",meaning:"실수, 잘못",phonetic:"/mɪˈsteɪk/"},{word:"a lot of",meaning:"많은, 여러",phonetic:"/ə lɒt əv/"},{word:"be able to~",meaning:"~할 수 있다",phonetic:"/bi ˈeɪ.bəl tuː/"},{word:"be going to~",meaning:"~할 예정이다",phonetic:"/bi ˈɡoʊ.ɪŋ tuː/"},{word:"have to~",meaning:"~해야 한다",phonetic:"/hæv tuː/"},{word:"must",meaning:"반드시 ~해야 한다",phonetic:"/mʌst/"}],sentences:[{ko:"이것과 저것 중 어느 것이 네 거야?",en:"Which one is yours, this or that?"},{ko:"고양이가 저 멀리 가버렸어.",en:"The cat went away."},{ko:"우리는 길을 따라 걸었어.",en:"We walked along the road."},{ko:"엄마가 나한테 과자를 먹게 해줬어.",en:"Mom let me eat cookies."},{ko:"나는 우산 없이 학교에 갔어.",en:"I went to school without an umbrella."},{ko:"나는 내 자신의 연필이 있어.",en:"I have my own pencil."},{ko:"저 개의 주인은 누구야?",en:"Who is the owner of that dog?"},{ko:"나는 어둠이 무서워.",en:"I am afraid of the dark."},{ko:"그건 지난 일이야.",en:"That is in the past."},{ko:"이건 나한테 주는 선물이야?",en:"Is this a present for me?"},{ko:"낙타는 혹이 있어.",en:"A camel has a hump."},{ko:"도마뱀이 벽에 있어.",en:"A lizard is on the wall."},{ko:"걱정하지 마!",en:"Don't worry!"},{ko:"나는 오늘 시험이 걱정돼.",en:"I am worried about the test today."},{ko:"고양이가 의자 사이에 있어.",en:"The cat is between the chairs."},{ko:"너 피자 먹어본 적 있어?",en:"Have you ever eaten pizza?"},{ko:"저 꽃이 꽤 예쁘다.",en:"That flower is pretty."},{ko:"나는 버스비를 냈어.",en:"I paid for the bus."},{ko:"또 뭐가 필요해?",en:"What else do you need?"},{ko:"그건 흔한 실수야.",en:"That is a common mistake."},{ko:"책상 위에 책이 많아.",en:"There are a lot of books on the desk."},{ko:"나는 혼자 밥을 먹을 수 있어.",en:"I am able to eat alone."},{ko:"나는 내일 도서관에 갈 거야.",en:"I am going to go to the library tomorrow."},{ko:"너는 손을 씻어야 해.",en:"You have to wash your hands."},{ko:"너는 반드시 모자를 써야 해.",en:"You must wear a hat."}]},
+  {id:'3-2',label:'3-2',name:'장소·사람·수량',words:[{word:"thousand",meaning:"천(1,000)",phonetic:"/ˈθaʊ.zənd/"},{word:"breakfast",meaning:"아침(밥), 아침식사",phonetic:"/ˈbrek.fəst/"},{word:"birthday",meaning:"생일",phonetic:"/ˈbɜːrθ.deɪ/"},{word:"hospital",meaning:"병원",phonetic:"/ˈhɒs.pɪ.təl/"},{word:"bathtub",meaning:"욕조",phonetic:"/ˈbæθ.tʌb/"},{word:"kitchen",meaning:"부엌, 주방",phonetic:"/ˈkɪtʃ.ɪn/"},{word:"popular",meaning:"인기있는, 대중적인",phonetic:"/ˈpɒp.jʊ.lər/"},{word:"famous",meaning:"유명한",phonetic:"/ˈfeɪ.məs/"},{word:"mathematics",meaning:"수학(= math)",phonetic:"/ˌmæθ.əˈmæt.ɪks/"},{word:"India",meaning:"인도(나라)",phonetic:"/ˈɪn.di.ə/"},{word:"Indian",meaning:"인도인, 인도의",phonetic:"/ˈɪn.di.ən/"},{word:"practice",meaning:"연습하다, 연습, 실행, 관례",phonetic:"/ˈpræk.tɪs/"},{word:"everybody",meaning:"모두, 누구든지(= everyone)",phonetic:"/ˈev.ri.bɒd.i/"},{word:"somebody",meaning:"누군가, 어떤 사람(긍정문)",phonetic:"/ˈsʌm.bɒd.i/"},{word:"anybody",meaning:"누구나, 아무나(부정문·의문문)",phonetic:"/ˈen.i.bɒd.i/"},{word:"nobody",meaning:"아무도 ~없다(= no one)",phonetic:"/ˈnoʊ.bɒd.i/"},{word:"husband",meaning:"남편",phonetic:"/ˈhʌz.bənd/"},{word:"daughter",meaning:"딸",phonetic:"/ˈdɔː.tər/"},{word:"little",meaning:"거의 없는(셀 수 없는 명사)",phonetic:"/ˈlɪt.əl/"},{word:"few",meaning:"거의 없는(셀 수 있는 명사)",phonetic:"/fjuː/"},{word:"a little",meaning:"조금 있는(셀 수 없는 명사)",phonetic:"/ə ˈlɪt.əl/"},{word:"a few",meaning:"조금 있는(셀 수 있는 명사)",phonetic:"/ə fjuː/"},{word:"listen to~",meaning:"~을 듣다",phonetic:"/ˈlɪs.ən tuː/"},{word:"look at~",meaning:"~을 (바라)보다",phonetic:"/lʊk æt/"},{word:"look for~",meaning:"~을 찾다(구하다)",phonetic:"/lʊk fɔːr/"}],sentences:[{ko:"천 명의 사람들이 공원에 있어.",en:"There are a thousand people in the park."},{ko:"나는 아침밥을 먹었어.",en:"I ate breakfast."},{ko:"오늘은 내 생일이야.",en:"Today is my birthday."},{ko:"아빠가 병원에 갔어.",en:"Dad went to the hospital."},{ko:"고양이가 욕조에 있어.",en:"The cat is in the bathtub."},{ko:"엄마는 부엌에 있어.",en:"Mom is in the kitchen."},{ko:"이 노래는 인기가 많아.",en:"This song is popular."},{ko:"그 선생님은 유명해.",en:"That teacher is famous."},{ko:"수학은 어려워.",en:"Mathematics is hard."},{ko:"인도는 큰 나라야.",en:"India is a big country."},{ko:"그는 인도 사람이야.",en:"He is Indian."},{ko:"나는 매일 피아노를 연습해.",en:"I practice the piano every day."},{ko:"모두가 웃고 있어.",en:"Everybody is laughing."},{ko:"누군가가 문을 두드렸어.",en:"Somebody knocked on the door."},{ko:"여기 아무도 없어?",en:"Is anybody here?"},{ko:"아무도 집에 없어.",en:"Nobody is at home."},{ko:"그녀의 남편은 키가 커.",en:"Her husband is tall."},{ko:"그의 딸은 귀여워.",en:"His daughter is cute."},{ko:"물이 거의 없어.",en:"There is little water."},{ko:"친구가 거의 없어.",en:"I have few friends."},{ko:"우유가 조금 있어.",en:"There is a little milk."},{ko:"사과가 몇 개 있어.",en:"There are a few apples."},{ko:"나는 음악을 듣고 있어.",en:"I am listening to music."},{ko:"저 그림 좀 봐!",en:"Look at that picture!"},{ko:"나는 내 가방을 찾고 있어.",en:"I am looking for my bag."}]},
+  {id:'3-3',label:'3-3',name:'회사·빈도·위치',words:[{word:"company",meaning:"회사, 기업",phonetic:"/ˈkʌm.pə.ni/"},{word:"mission",meaning:"임무, 사명, 작전",phonetic:"/ˈmɪʃ.ən/"},{word:"whose",meaning:"누구의, 누구의 것",phonetic:"/huːz/"},{word:"forget",meaning:"잊다, 깜박하다",phonetic:"/fəˈɡet/"},{word:"useless",meaning:"쓸모없는, 소용없는",phonetic:"/ˈjuːs.ləs/"},{word:"useful",meaning:"쓸모 있는, 유용한",phonetic:"/ˈjuːs.fəl/"},{word:"crowd",meaning:"군중, 많은 사람, 혼잡, 붐비다",phonetic:"/kraʊd/"},{word:"crowded",meaning:"붐비는, 혼잡한",phonetic:"/ˈkraʊ.dɪd/"},{word:"around",meaning:"주위에(둘레에), 약, ~쯤",phonetic:"/əˈraʊnd/"},{word:"over",meaning:"~위에, ~를 넘어서, 초과하여, 끝이 난",phonetic:"/ˈoʊ.vər/"},{word:"below",meaning:"~(보다)아래에, 밑에, ~이하의",phonetic:"/bɪˈloʊ/"},{word:"Italy",meaning:"이탈리아",phonetic:"/ˈɪt.ə.li/"},{word:"Italian",meaning:"이탈리아인, 이탈리아어, 이탈리아의",phonetic:"/ɪˈtæl.jən/"},{word:"save",meaning:"구하다, 저축하다, 절약하다",phonetic:"/seɪv/"},{word:"cage",meaning:"새장, (짐승의)우리",phonetic:"/keɪdʒ/"},{word:"poster",meaning:"포스터, 벽보",phonetic:"/ˈpoʊ.stər/"},{word:"show",meaning:"보여주다, 쇼, 공연",phonetic:"/ʃoʊ/"},{word:"should",meaning:"~해야 한다, ~하는 게 좋다, (아마)~일 것이다",phonetic:"/ʃʊd/"},{word:"ago",meaning:"(얼마의 시간)전에",phonetic:"/əˈɡoʊ/"},{word:"often",meaning:"자주, 종종, 흔히",phonetic:"/ˈɒf.ən/"},{word:"usually",meaning:"보통, 대개",phonetic:"/ˈjuː.ʒu.ə.li/"},{word:"sometimes",meaning:"가끔, 때때로",phonetic:"/ˈsʌm.taɪmz/"},{word:"rarely",meaning:"드물게, 좀처럼 ~하지 않은",phonetic:"/ˈreər.li/"},{word:"come back",meaning:"돌아오다",phonetic:"/kʌm bæk/"},{word:"a pair of~",meaning:"한 쌍의~, 한 켤레(벌)의~",phonetic:"/ə peər əv/"}],sentences:[{ko:"아빠는 회사에 가.",en:"Dad goes to the company."},{ko:"우리의 임무는 학교에 가는 거야.",en:"Our mission is to go to school."},{ko:"이건 누구의 가방이야?",en:"Whose bag is this?"},{ko:"나는 숙제를 깜박했어.",en:"I forgot my homework."},{ko:"이 펜은 쓸모없어.",en:"This pen is useless."},{ko:"이 지도는 유용해.",en:"This map is useful."},{ko:"버스에 사람이 많아.",en:"There is a crowd on the bus."},{ko:"지하철이 너무 붐벼.",en:"The subway is very crowded."},{ko:"공원 주위에 나무가 있어.",en:"There are trees around the park."},{ko:"다리 위로 차가 지나가.",en:"Cars go over the bridge."},{ko:"온도가 0도 이하야.",en:"The temperature is below zero."},{ko:"이탈리아는 유럽에 있어.",en:"Italy is in Europe."},{ko:"피자는 이탈리아 음식이야.",en:"Pizza is Italian food."},{ko:"그가 나를 구해줬어.",en:"He saved me."},{ko:"새가 새장 안에 있어.",en:"The bird is in the cage."},{ko:"벽에 포스터가 있어.",en:"There is a poster on the wall."},{ko:"나한테 네 그림 보여줘.",en:"Show me your picture."},{ko:"너는 물을 많이 마셔야 해.",en:"You should drink a lot of water."},{ko:"나는 5분 전에 왔어.",en:"I came here five minutes ago."},{ko:"나는 종종 공원에 가.",en:"I often go to the park."},{ko:"나는 보통 7시에 일어나.",en:"I usually wake up at seven."},{ko:"나는 가끔 피자를 먹어.",en:"I sometimes eat pizza."},{ko:"나는 좀처럼 늦지 않아.",en:"I rarely come late."},{ko:"엄마가 곧 돌아올 거야.",en:"Mom will come back soon."},{ko:"신발 한 켤레가 있어.",en:"There is a pair of shoes."}]},
+  {id:'3-4',label:'3-4',name:'마법·배달·시간',words:[{word:"minute",meaning:"분, 순간",phonetic:"/ˈmɪn.ɪt/"},{word:"through",meaning:"~을 통하여(통과), ~동안 내내(줄곧)",phonetic:"/θruː/"},{word:"stand",meaning:"서다, 서 있다, 참다",phonetic:"/stænd/"},{word:"course",meaning:"강의(강좌), 과정",phonetic:"/kɔːrs/"},{word:"even",meaning:"~조차도, ~까지도, 평평한, 고른(일정한)",phonetic:"/ˈiː.vən/"},{word:"carefully",meaning:"주의 깊게, 조심스럽게",phonetic:"/ˈkeər.fə.li/"},{word:"arrive",meaning:"도착하다",phonetic:"/əˈraɪv/"},{word:"magic",meaning:"마술, 마법",phonetic:"/ˈmædʒ.ɪk/"},{word:"magician",meaning:"마술사, 마법사",phonetic:"/məˈdʒɪʃ.ən/"},{word:"lead",meaning:"인도하다, 안내하다, 앞장서다, 이끌다",phonetic:"/liːd/"},{word:"leader",meaning:"지도자, 대표, 리더",phonetic:"/ˈliː.dər/"},{word:"deliver",meaning:"배달하다",phonetic:"/dɪˈlɪv.ər/"},{word:"delivery",meaning:"배달",phonetic:"/dɪˈlɪv.ər.i/"},{word:"keep",meaning:"유지하다, ~을 계속하다, (약속 등을)지키다",phonetic:"/kiːp/"},{word:"while",meaning:"~하는 동안(사이)에, ~와 동시에, ~인데 반하여, 잠깐, 잠시",phonetic:"/waɪl/"},{word:"during",meaning:"(특정 기간)~동안(내내), (~하는)중에",phonetic:"/ˈdjʊə.rɪŋ/"},{word:"for",meaning:"~동안(시간·기간 앞에 쓰임), ~을 위하여, ~하러",phonetic:"/fɔːr/"},{word:"sorrow",meaning:"(큰)슬픔, 슬픈 일",phonetic:"/ˈsɒr.oʊ/"},{word:"grow",meaning:"커지다, 자라다, 재배하다",phonetic:"/ɡroʊ/"},{word:"silly",meaning:"어리석은(= foolish), 바보 같은",phonetic:"/ˈsɪl.i/"},{word:"several",meaning:"여럿의, 몇몇의",phonetic:"/ˈsev.ər.əl/"},{word:"bake",meaning:"굽다, 구워지다",phonetic:"/beɪk/"},{word:"bakery",meaning:"제과점, 빵집",phonetic:"/ˈbeɪ.kər.i/"},{word:"get up",meaning:"(자리에서)일어나다",phonetic:"/ɡet ʌp/"},{word:"wake up",meaning:"(잠에서 깨어)일어나다",phonetic:"/weɪk ʌp/"}],sentences:[
+      {ko:"5분만 기다려줘.",en:"Wait for five minutes."},
+      {ko:"우리는 터널을 통과했어.",en:"We went through the tunnel."},
+      {ko:"나는 버스 정류장에 서 있어.",en:"I am standing at the bus stop."},
+      {ko:"나는 요리 강좌를 들어.",en:"I take a cooking course."},
+      {ko:"고양이도 피자를 좋아해.",en:"Even cats like pizza."},
+      {ko:"길을 조심스럽게 건너.",en:"Cross the road carefully."},
+      {ko:"우리는 역에 도착했어.",en:"We arrived at the station."},
+      {ko:"그는 마술을 보여줬어.",en:"He showed some magic."},
+      {ko:"그 마술사는 정말 신기해.",en:"That magician is amazing."},
+      {ko:"선생님이 우리를 이끌었어.",en:"The teacher led us."},
+      {ko:"그는 우리 팀의 리더야.",en:"He is the leader of our team."},
+      {ko:"이 상자를 집까지 배달해줘.",en:"Please deliver this box to my house."},
+      {ko:"피자 배달이 왔어.",en:"The pizza delivery arrived."},
+      {ko:"약속을 꼭 지켜.",en:"You must keep your promise."},
+      {ko:"나는 밥을 먹는 동안 음악을 들어.",en:"I listen to music while I eat."},
+      {ko:"방학 동안 책을 읽었어.",en:"I read books during the vacation."},
+      {ko:"나는 한 시간 동안 공부했어.",en:"I studied for an hour."},
+      {ko:"그것은 큰 슬픔이었어.",en:"It was a great sorrow."},
+      {ko:"나무가 자라고 있어.",en:"The tree is growing."},
+      {ko:"그건 바보 같은 생각이야.",en:"That is a silly idea."},
+      {ko:"여러 명의 친구가 왔어.",en:"Several friends came."},
+      {ko:"엄마가 쿠키를 구웠어.",en:"Mom baked cookies."},
+      {ko:"학교 앞에 빵집이 있어.",en:"There is a bakery in front of the school."},
+      {ko:"나는 7시에 일어나.",en:"I get up at seven."},
+      {ko:"일찍 일어나는 게 좋아.",en:"It is good to wake up early."}
+    ]},
+  {id:'3-5',label:'3-5',name:'상태·감정·관심',words:[{word:"break",meaning:"깨지다, 고장나다, (약속을)어기다",phonetic:"/breɪk/"},{word:"broken",meaning:"깨진, 고장난, 부러진",phonetic:"/ˈbroʊ.kən/"},{word:"top",meaning:"꼭대기, 정상",phonetic:"/tɒp/"},{word:"bottom",meaning:"맨 아래의(부분), 밑 바닥",phonetic:"/ˈbɒt.əm/"},{word:"already",meaning:"벌써, 이미",phonetic:"/ɔːlˈred.i/"},{word:"important",meaning:"중요한, 중대한",phonetic:"/ɪmˈpɔːr.tənt/"},{word:"since",meaning:"~부터, ~이후(계속), ~이므로",phonetic:"/sɪns/"},{word:"print",meaning:"인쇄하다, 인쇄물",phonetic:"/prɪnt/"},{word:"event",meaning:"(중요한)사건, 행사, 이벤트",phonetic:"/ɪˈvent/"},{word:"indoor",meaning:"실내의, 옥내의",phonetic:"/ˈɪn.dɔːr/"},{word:"outdoor",meaning:"야외의, 옥외의",phonetic:"/ˈaʊt.dɔːr/"},{word:"believe",meaning:"믿다",phonetic:"/bɪˈliːv/"},{word:"belief",meaning:"믿음, 신념, 확신",phonetic:"/bɪˈliːf/"},{word:"spend",meaning:"(돈을)소비하다, (시간을)보내다",phonetic:"/spend/"},{word:"field",meaning:"들판, 밭, 경기장",phonetic:"/fiːld/"},{word:"mind",meaning:"마음, 생각, 언짢아하다",phonetic:"/maɪnd/"},{word:"return",meaning:"돌아오다(가다), 돌려주다",phonetic:"/rɪˈtɜːrn/"},{word:"later",meaning:"나중에, 후에",phonetic:"/ˈleɪ.tər/"},{word:"lately",meaning:"요즘, 최근",phonetic:"/ˈleɪt.li/"},{word:"wrong",meaning:"틀린, 잘못된",phonetic:"/rɒŋ/"},{word:"half",meaning:"반, 절반",phonetic:"/hɑːf/"},{word:"in half",meaning:"(절)반으로, 이등분으로",phonetic:"/ɪn hɑːf/"},{word:"plastic bag",meaning:"비닐봉투",phonetic:"/ˈplæs.tɪk bæɡ/"},{word:"interest",meaning:"관심, 흥미, ~의 관심을 끌다",phonetic:"/ˈɪn.trəst/"},{word:"be interested in~",meaning:"~에 관심(흥미) 있다",phonetic:"/bi ˈɪn.trəs.tɪd ɪn/"}],sentences:[{ko:"컵이 깨졌어.",en:"The cup broke."},{ko:"이 시계는 고장났어.",en:"This clock is broken."},{ko:"산 꼭대기에 눈이 있어.",en:"There is snow on the top of the mountain."},{ko:"가방 맨 밑에 있어.",en:"It is at the bottom of the bag."},{ko:"나는 벌써 숙제를 했어.",en:"I already did my homework."},{ko:"이건 정말 중요한 일이야.",en:"This is a very important matter."},{ko:"나는 아침부터 공부했어.",en:"I have studied since morning."},{ko:"사진을 인쇄해줘.",en:"Please print the picture."},{ko:"학교 행사가 있어.",en:"There is a school event."},{ko:"우리는 실내 수영장에 가.",en:"We go to an indoor pool."},{ko:"야외 활동이 재미있어.",en:"Outdoor activities are fun."},{ko:"나는 네 말을 믿어.",en:"I believe you."},{ko:"그건 내 믿음이야.",en:"That is my belief."},{ko:"나는 용돈을 다 썼어.",en:"I spent all my allowance."},{ko:"들판에 꽃이 피었어.",en:"Flowers bloomed in the field."},{ko:"기분 나쁘게 생각하지 마.",en:"Please don't mind it."},{ko:"나중에 돌아올게.",en:"I will return later."},{ko:"나중에 봐.",en:"See you later."},{ko:"요즘 바쁘게 지냈어.",en:"I have been busy lately."},{ko:"네 답이 틀렸어.",en:"Your answer is wrong."},{ko:"사과를 반으로 잘랐어.",en:"I cut the apple in half."},{ko:"종이를 반으로 접어.",en:"Fold the paper in half."},{ko:"비닐봉투는 환경에 나빠.",en:"Plastic bags are bad for the environment."},{ko:"나는 음악에 관심이 많아.",en:"I have a lot of interest in music."},{ko:"나는 과학에 관심이 있어.",en:"I am interested in science."}]},
+  {id:'3-6',label:'3-6',name:'문화·결혼·동의',words:[{word:"reach",meaning:"도착하다, 닿다",phonetic:"/riːtʃ/"},{word:"shake",meaning:"흔들다, 흔들리다",phonetic:"/ʃeɪk/"},{word:"bite",meaning:"물다, 깨물다",phonetic:"/baɪt/"},{word:"culture",meaning:"문화, 교양",phonetic:"/ˈkʌl.tʃər/"},{word:"cultural",meaning:"문화의, 교양의",phonetic:"/ˈkʌl.tʃər.əl/"},{word:"harvest",meaning:"수확, 수확하다",phonetic:"/ˈhɑːr.vɪst/"},{word:"century",meaning:"세기, 100년",phonetic:"/ˈsen.tʃər.i/"},{word:"hate",meaning:"미워하다, 싫어하다",phonetic:"/heɪt/"},{word:"age",meaning:"나이, 시대",phonetic:"/eɪdʒ/"},{word:"quite",meaning:"아주, 꽤, 상당히",phonetic:"/kwaɪt/"},{word:"idle",meaning:"게으른(= lazy), 빈둥거리다",phonetic:"/ˈaɪ.dəl/"},{word:"diligent",meaning:"성실한, 부지런한",phonetic:"/ˈdɪl.ɪ.dʒənt/"},{word:"guess",meaning:"추측하다, 추측",phonetic:"/ɡes/"},{word:"record",meaning:"기록, 기록하다, 녹음하다",phonetic:"/ˈrek.ɔːrd/"},{word:"agree",meaning:"동의하다(의견이 일치하다)",phonetic:"/əˈɡriː/"},{word:"disagree",meaning:"동의하지 않다(의견이 다르다)",phonetic:"/ˌdɪs.əˈɡriː/"},{word:"continue",meaning:"계속하다, 계속되다, 이어지다",phonetic:"/kənˈtɪn.juː/"},{word:"introduce",meaning:"소개하다, 도입하다",phonetic:"/ˌɪn.trəˈdjuːs/"},{word:"introduction",meaning:"소개, 도입, 서론",phonetic:"/ˌɪn.trəˈdʌk.ʃən/"},{word:"amount",meaning:"총액, 액수, (무엇의)양",phonetic:"/əˈmaʊnt/"},{word:"marry",meaning:"결혼하다",phonetic:"/ˈmær.i/"},{word:"marriage",meaning:"결혼, 결혼생활",phonetic:"/ˈmær.ɪdʒ/"},{word:"care",meaning:"돌봄, 주의, 상관하다",phonetic:"/keər/"},{word:"take care of~",meaning:"~을 돌보다(= look after)",phonetic:"/teɪk keər əv/"},{word:"as ~ as…",meaning:"…만큼 ~한",phonetic:"/æz … æz/"}],sentences:[{ko:"우리는 역에 도착했어.",en:"We reached the station."},{ko:"나무가 바람에 흔들려.",en:"The tree shakes in the wind."},{ko:"개가 나를 물었어.",en:"The dog bit me."},{ko:"한국 문화가 세계에 알려졌어.",en:"Korean culture is known worldwide."},{ko:"우리는 문화 행사에 참여했어.",en:"We joined a cultural event."},{ko:"농부가 쌀을 수확했어.",en:"The farmer harvested the rice."},{ko:"21세기는 정보의 시대야.",en:"The 21st century is the age of information."},{ko:"나는 거짓말이 싫어.",en:"I hate lying."},{ko:"그는 나이가 몇 살이야?",en:"What age is he?"},{ko:"오늘은 꽤 더워.",en:"It is quite hot today."},{ko:"게으르게 살지 마.",en:"Don't be idle."},{ko:"그는 정말 부지런해.",en:"He is very diligent."},{ko:"정답을 추측해봐.",en:"Guess the right answer."},{ko:"세계 기록을 세웠어.",en:"He set a world record."},{ko:"나는 네 말에 동의해.",en:"I agree with you."},{ko:"나는 그 생각에 동의 안 해.",en:"I disagree with that idea."},{ko:"계속 노력해.",en:"Continue to try."},{ko:"친구를 소개해줄게.",en:"Let me introduce my friend."},{ko:"자기소개를 해봐.",en:"Give a self-introduction."},{ko:"적은 양의 물이 남았어.",en:"A small amount of water is left."},{ko:"그들은 결혼했어.",en:"They got married."},{ko:"결혼식이 아름다웠어.",en:"The marriage ceremony was beautiful."},{ko:"아기를 조심스럽게 다뤄.",en:"Take care with the baby."},{ko:"동생을 돌봐줘.",en:"Take care of your little brother."},{ko:"그는 나만큼 키가 커.",en:"He is as tall as me."}]},
+  {id:'3-7',label:'3-7',name:'예절·교통·의미',words:[{word:"notice",meaning:"안내문, 통지, 알아차리다",phonetic:"/ˈnoʊ.tɪs/"},{word:"note",meaning:"메모, 음표, 적어두다",phonetic:"/noʊt/"},{word:"traffic",meaning:"교통",phonetic:"/ˈtræf.ɪk/"},{word:"machine",meaning:"기계",phonetic:"/məˈʃiːn/"},{word:"chew",meaning:"(음식을)씹다",phonetic:"/tʃuː/"},{word:"mark",meaning:"표시하다, 채점하다, 자국, 표시",phonetic:"/mɑːrk/"},{word:"meaning",meaning:"뜻, 의미",phonetic:"/ˈmiː.nɪŋ/"},{word:"mean",meaning:"의미하다, 뜻, 인색한",phonetic:"/miːn/"},{word:"point",meaning:"요점(핵심), 점, 가리키다, 지적하다",phonetic:"/pɔɪnt/"},{word:"hurt",meaning:"다친, 다치게 하다, 아프다, 상처",phonetic:"/hɜːrt/"},{word:"spell",meaning:"철자, 주문(마법), 철자를 말하다(쓰다)",phonetic:"/spel/"},{word:"polite",meaning:"예의 바른, 공손한",phonetic:"/pəˈlaɪt/"},{word:"rude",meaning:"무례한, 버릇없는",phonetic:"/ruːd/"},{word:"normal",meaning:"정상적인, 보통의, 평범한",phonetic:"/ˈnɔːr.məl/"},{word:"above",meaning:"~위에(위쪽에)",phonetic:"/əˈbʌv/"},{word:"matter",meaning:"문제, 일, 물질, 중요하다, 문제되다",phonetic:"/ˈmæt.ər/"},{word:"cross",meaning:"가로지르다, 횡단하다, 십자(형), X표",phonetic:"/krɒs/"},{word:"across",meaning:"~을 가로질러",phonetic:"/əˈkrɒs/"},{word:"racket",meaning:"(테니스 등의)라켓",phonetic:"/ˈræk.ɪt/"},{word:"gentleman",meaning:"신사",phonetic:"/ˈdʒen.tl.mən/"},{word:"costume",meaning:"(연극·영화의)의상, (특수한 목적의)복장",phonetic:"/ˈkɒs.tjuːm/"},{word:"each",meaning:"각각의, 각자의, 제각기",phonetic:"/iːtʃ/"},{word:"each other",meaning:"서로",phonetic:"/iːtʃ ˈʌð.ər/"},{word:"anyway",meaning:"어쨌든, 하여간, 그건 그렇고",phonetic:"/ˈen.i.weɪ/"},{word:"by the way",meaning:"그런데",phonetic:"/baɪ ðə weɪ/"}],sentences:[{ko:"게시판에 공지가 있어.",en:"There is a notice on the board."},{ko:"메모를 적어둬.",en:"Write a note."},{ko:"교통이 너무 막혀.",en:"The traffic is very heavy."},{ko:"이 기계는 어떻게 써?",en:"How do you use this machine?"},{ko:"음식을 천천히 씹어.",en:"Chew your food slowly."},{ko:"답을 표시해.",en:"Mark the answer."},{ko:"이 단어의 뜻이 뭐야?",en:"What is the meaning of this word?"},{ko:"그게 무슨 뜻이야?",en:"What does that mean?"},{ko:"요점이 뭐야?",en:"What is the point?"},{ko:"다리를 다쳤어.",en:"I hurt my leg."},{ko:"이름 철자를 알려줘.",en:"Tell me how to spell your name."},{ko:"그는 정말 예의 바른 사람이야.",en:"He is a very polite person."},{ko:"그건 무례한 행동이야.",en:"That is a rude behavior."},{ko:"그건 정상적인 일이야.",en:"That is a normal thing."},{ko:"구름이 산 위에 있어.",en:"The clouds are above the mountain."},{ko:"그건 중요한 문제야.",en:"That is an important matter."},{ko:"길을 건너.",en:"Cross the road."},{ko:"다리를 건너.",en:"Go across the bridge."},{ko:"테니스 라켓을 샀어.",en:"I bought a tennis racket."},{ko:"그는 진짜 신사야.",en:"He is a true gentleman."},{ko:"할로윈 의상을 입었어.",en:"I wore a Halloween costume."},{ko:"각자 하나씩 가져.",en:"Take one each."},{ko:"우리는 서로 도와.",en:"We help each other."},{ko:"어쨌든 잘 됐어.",en:"Anyway, it worked out."},{ko:"그런데, 오늘 어때?",en:"By the way, how are you today?"}]},
+  {id:'3-8',label:'3-8',name:'항해·캠프·자연',words:[{word:"fake",meaning:"가짜의, 거짓된, 모조품",phonetic:"/feɪk/"},{word:"instead",meaning:"대신에",phonetic:"/ɪnˈsted/"},{word:"flight",meaning:"비행, 항공편",phonetic:"/flaɪt/"},{word:"discussion",meaning:"논의, 상의",phonetic:"/dɪˈskʌʃ.ən/"},{word:"discuss",meaning:"논의하다, 상의하다",phonetic:"/dɪˈskʌs/"},{word:"camp",meaning:"캠프, 막사(군대), 야영하다",phonetic:"/kæmp/"},{word:"campsite",meaning:"캠프장, 야영지",phonetic:"/ˈkæmp.saɪt/"},{word:"million",meaning:"100만, 백만의",phonetic:"/ˈmɪl.jən/"},{word:"decoration",meaning:"장식(품)",phonetic:"/ˌdek.əˈreɪ.ʃən/"},{word:"decorate",meaning:"장식하다, 꾸미다",phonetic:"/ˈdek.ə.reɪt/"},{word:"report",meaning:"보고서, (신문 등의)보도기사, 보도하다, 알리다",phonetic:"/rɪˈpɔːrt/"},{word:"form",meaning:"종류, 형태, 서식, 형성하다, 구성하다",phonetic:"/fɔːrm/"},{word:"list",meaning:"리스트, 목록, 명단, 리스트를 작성하다",phonetic:"/lɪst/"},{word:"sail",meaning:"항해하다, 항해, 돛",phonetic:"/seɪl/"},{word:"sailor",meaning:"선원",phonetic:"/ˈseɪ.lər/"},{word:"set",meaning:"놓다, (해·달이)지다, 세트",phonetic:"/set/"},{word:"receive",meaning:"받다",phonetic:"/rɪˈsiːv/"},{word:"blind",meaning:"눈이 먼, 시각장애인(의), 눈멀게 하다",phonetic:"/blaɪnd/"},{word:"dig",meaning:"(땅을)파다, 파내다",phonetic:"/dɪɡ/"},{word:"fill",meaning:"(가득)채우다",phonetic:"/fɪl/"},{word:"full",meaning:"가득 찬",phonetic:"/fʊl/"},{word:"blanket",meaning:"담요",phonetic:"/ˈblæŋ.kɪt/"},{word:"skin",meaning:"피부, (동물의)가죽",phonetic:"/skɪn/"},{word:"in the morning",meaning:"아침에, 오전 중에",phonetic:"/ɪn ðə ˈmɔːr.nɪŋ/"},{word:"this morning",meaning:"오늘 아침",phonetic:"/ðɪs ˈmɔːr.nɪŋ/"}],sentences:[
+      {ko:"그건 가짜야.",en:"That is fake."},
+      {ko:"물 대신 주스를 마셨어.",en:"I drank juice instead of water."},
+      {ko:"비행기 비행이 즐거웠어.",en:"The flight was fun."},
+      {ko:"회의에서 토론이 있었어.",en:"There was a discussion in the meeting."},
+      {ko:"선생님과 상의해봐.",en:"Discuss it with your teacher."},
+      {ko:"우리는 강에서 캠프했어.",en:"We camped by the river."},
+      {ko:"캠프장이 정말 좋았어.",en:"The campsite was really nice."},
+      {ko:"백만 명이 그 공연을 봤어.",en:"A million people watched the show."},
+      {ko:"방을 예쁘게 장식했어.",en:"I decorated the room nicely."},
+      {ko:"크리스마스 장식을 달았어.",en:"I put up Christmas decorations."},
+      {ko:"선생님께 보고서를 냈어.",en:"I submitted a report to the teacher."},
+      {ko:"신청 서식을 작성해.",en:"Fill in the form."},
+      {ko:"할 일 목록을 만들어.",en:"Make a to-do list."},
+      {ko:"그 배는 바다를 항해했어.",en:"The ship sailed the sea."},
+      {ko:"그는 베테랑 선원이야.",en:"He is an experienced sailor."},
+      {ko:"컵을 테이블에 놓아.",en:"Set the cup on the table."},
+      {ko:"나는 선물을 받았어.",en:"I received a gift."},
+      {ko:"그 고양이는 눈이 멀었어.",en:"The cat is blind."},
+      {ko:"구덩이를 팠어.",en:"I dug a hole."},
+      {ko:"물컵을 가득 채워.",en:"Fill the glass with water."},
+      {ko:"상자가 가득 찼어.",en:"The box is full."},
+      {ko:"담요로 몸을 덮었어.",en:"I covered myself with a blanket."},
+      {ko:"피부가 건강해 보여.",en:"Your skin looks healthy."},
+      {ko:"아침에 조깅을 해.",en:"I jog in the morning."},
+      {ko:"오늘 아침에 늦게 일어났어.",en:"I woke up late this morning."}
+    ]},
+  {id:'3-9',label:'3-9',name:'신체·경험·약속',words:[{word:"garbage",meaning:"쓰레기",phonetic:"/ˈɡɑːr.bɪdʒ/"},{word:"lucky",meaning:"행운의, 운 좋은",phonetic:"/ˈlʌk.i/"},{word:"luck",meaning:"행운, 좋은 운",phonetic:"/lʌk/"},{word:"shoulder",meaning:"어깨",phonetic:"/ˈʃoʊl.dər/"},{word:"waist",meaning:"허리",phonetic:"/weɪst/"},{word:"wrist",meaning:"손목",phonetic:"/rɪst/"},{word:"ankle",meaning:"발목",phonetic:"/ˈæŋ.kəl/"},{word:"throat",meaning:"목구멍",phonetic:"/θroʊt/"},{word:"ancient",meaning:"고대의",phonetic:"/ˈeɪn.ʃənt/"},{word:"burn",meaning:"(불에)타다, 태우다, 화상",phonetic:"/bɜːrn/"},{word:"case",meaning:"경우, 사례, 용기(상자)",phonetic:"/keɪs/"},{word:"experience",meaning:"경험, 경험하다",phonetic:"/ɪkˈspɪər.i.əns/"},{word:"explain",meaning:"설명하다, 해명하다",phonetic:"/ɪkˈspleɪn/"},{word:"explanation",meaning:"설명, 해명",phonetic:"/ˌek.spləˈneɪ.ʃən/"},{word:"bother",meaning:"귀찮게 하다, 괴롭히다, 귀찮음(성가심)",phonetic:"/ˈbɒð.ər/"},{word:"battle",meaning:"전투(투쟁), 대결, 대결하다(싸우다)",phonetic:"/ˈbæt.əl/"},{word:"promise",meaning:"약속, 약속하다",phonetic:"/ˈprɒm.ɪs/"},{word:"sentence",meaning:"문장, 형벌, (형을)선고하다",phonetic:"/ˈsen.təns/"},{word:"beside",meaning:"~의 옆에(곁에)",phonetic:"/bɪˈsaɪd/"},{word:"race",meaning:"경주, 경쟁, 인종, 경주하다",phonetic:"/reɪs/"},{word:"tiny",meaning:"아주 작은, 조그마한",phonetic:"/ˈtaɪ.ni/"},{word:"feeling",meaning:"느낌, 감각, 기분",phonetic:"/ˈfiː.lɪŋ/"},{word:"come from~",meaning:"~출신이다(고향·사는 지역), ~에서 나오다",phonetic:"/kʌm frɒm/"},{word:"on one's way",meaning:"~하는 중에(도중에)",phonetic:"/ɒn wʌnz weɪ/"},{word:"by bus",meaning:"버스로(버스를 타고)",phonetic:"/baɪ bʌs/"}],sentences:[{ko:"쓰레기를 버리지 마.",en:"Don't throw garbage."},{ko:"나는 정말 운이 좋아.",en:"I am very lucky."},{ko:"행운을 빌어!",en:"Good luck!"},{ko:"어깨가 아파.",en:"My shoulder hurts."},{ko:"허리를 곧게 펴.",en:"Straighten your waist."},{ko:"손목이 가늘어.",en:"My wrist is slim."},{ko:"발목을 삐었어.",en:"I sprained my ankle."},{ko:"목이 아파.",en:"My throat hurts."},{ko:"고대 이집트에 대해 배웠어.",en:"I learned about ancient Egypt."},{ko:"손가락을 데었어.",en:"I burned my finger."},{ko:"이런 경우에는 어떻게 해?",en:"What do you do in this case?"},{ko:"좋은 경험이었어.",en:"It was a good experience."},{ko:"그것을 설명해줄게.",en:"I will explain that."},{ko:"설명이 이해됐어.",en:"The explanation made sense."},{ko:"날 귀찮게 하지 마.",en:"Don't bother me."},{ko:"큰 싸움이 있었어.",en:"There was a big battle."},{ko:"약속을 지켜.",en:"Keep your promise."},{ko:"이 문장을 읽어봐.",en:"Read this sentence."},{ko:"나는 강 옆에 살아.",en:"I live beside the river."},{ko:"우리는 달리기 경주를 했어.",en:"We had a running race."},{ko:"이 개미는 아주 작아.",en:"This ant is tiny."},{ko:"이상한 느낌이 들어.",en:"I have a strange feeling."},{ko:"나는 부산 출신이야.",en:"I come from Busan."},{ko:"학교 가는 길이야.",en:"I am on my way to school."},{ko:"나는 버스로 학교에 가.",en:"I go to school by bus."}]},
+  {id:'3-10',label:'3-10',name:'방향·축하·사막',words:[{word:"cartoon",meaning:"만화",phonetic:"/kɑːrˈtuːn/"},{word:"forward",meaning:"앞으로",phonetic:"/ˈfɔːr.wərd/"},{word:"backward",meaning:"뒤로, 뒤의, 거꾸로",phonetic:"/ˈbæk.wərd/"},{word:"toward",meaning:"~의 쪽으로, ~을 향하여",phonetic:"/təˈwɔːrd/"},{word:"mayor",meaning:"시장, 군수",phonetic:"/ˈmeɪ.ər/"},{word:"master",meaning:"주인, 대가(거장), 숙달하다, 정복하다",phonetic:"/ˈmɑːs.tər/"},{word:"match",meaning:"시합, 성냥, 어울리다",phonetic:"/mætʃ/"},{word:"jungle",meaning:"정글, 밀림",phonetic:"/ˈdʒʌŋ.ɡəl/"},{word:"once",meaning:"한 번, (과거)한때, (언젠가)한번은",phonetic:"/wʌns/"},{word:"twice",meaning:"두 번, 두 배로",phonetic:"/twaɪs/"},{word:"celebrate",meaning:"기념하다, 축하하다",phonetic:"/ˈsel.ɪ.breɪt/"},{word:"celebration",meaning:"기념행사, 기념, 축하",phonetic:"/ˌsel.ɪˈbreɪ.ʃən/"},{word:"shiny",meaning:"빛나는, 반짝거리는",phonetic:"/ˈʃaɪ.ni/"},{word:"shine",meaning:"빛나다, (해·달이)비추다",phonetic:"/ʃaɪn/"},{word:"clear",meaning:"분명한, 투명한, 맑은",phonetic:"/klɪər/"},{word:"clearly",meaning:"분명하게, 명백하게",phonetic:"/ˈklɪər.li/"},{word:"desert",meaning:"사막",phonetic:"/ˈdez.ərt/"},{word:"season",meaning:"계절, 시기",phonetic:"/ˈsiː.zən/"},{word:"fantasy",meaning:"공상, 상상",phonetic:"/ˈfæn.tə.si/"},{word:"fantastic",meaning:"환상적인, 기막히게 좋은(멋진)",phonetic:"/fænˈtæs.tɪk/"},{word:"control",meaning:"지배(권), 지배하다, 통제(력), 통제(조종)하다",phonetic:"/kənˈtroʊl/"},{word:"wait for~",meaning:"~을 기다리다",phonetic:"/weɪt fɔːr/"},{word:"as soon as~",meaning:"~하자마자, ~하자 곧",phonetic:"/æz suːn æz/"},{word:"at night",meaning:"밤에",phonetic:"/æt naɪt/"},{word:"last night",meaning:"어젯밤",phonetic:"/læst naɪt/"}],sentences:[{ko:"만화책을 읽었어.",en:"I read a cartoon book."},{ko:"앞으로 걸어가.",en:"Walk forward."},{ko:"뒤로 물러서.",en:"Step backward."},{ko:"학교를 향해 걸었어.",en:"I walked toward the school."},{ko:"시장이 연설을 했어.",en:"The mayor gave a speech."},{ko:"그는 요리의 대가야.",en:"He is a master of cooking."},{ko:"우리는 축구 시합을 했어.",en:"We played a soccer match."},{ko:"정글에는 많은 동물이 있어.",en:"There are many animals in the jungle."},{ko:"나는 한 번만 해봤어.",en:"I tried it once."},{ko:"나는 이 책을 두 번 읽었어.",en:"I read this book twice."},{ko:"생일을 축하했어.",en:"We celebrated the birthday."},{ko:"생일 축하 파티를 열었어.",en:"We had a birthday celebration."},{ko:"별이 반짝반짝 빛나.",en:"The stars are shiny."},{ko:"태양이 밝게 빛나.",en:"The sun shines brightly."},{ko:"하늘이 맑아.",en:"The sky is clear."},{ko:"분명하게 말해줘.",en:"Please speak clearly."},{ko:"사막은 정말 더워.",en:"The desert is very hot."},{ko:"봄은 내가 좋아하는 계절이야.",en:"Spring is my favorite season."},{ko:"그건 그냥 공상이야.",en:"That is just a fantasy."},{ko:"오늘 하루가 환상적이었어.",en:"Today was fantastic."},{ko:"감정을 조절해.",en:"Control your emotions."},{ko:"버스를 기다려.",en:"Wait for the bus."},{ko:"집에 오자마자 씻어.",en:"Wash up as soon as you get home."},{ko:"밤에 별이 예뻐.",en:"The stars are pretty at night."},{ko:"어젯밤에 비가 왔어.",en:"It rained last night."}]},
+  {id:'3-11',label:'3-11',name:'건물·유령·인터뷰',words:[{word:"monument",meaning:"기념비, 기념물",phonetic:"/ˈmɒn.jʊ.mənt/"},{word:"against",meaning:"~에 반대하여(맞서)",phonetic:"/əˈɡenst/"},{word:"suit",meaning:"정장(한 벌), 소송, 어울리다, 적합하다",phonetic:"/suːt/"},{word:"near",meaning:"가까운, 가까이(에)(시간·장소 앞에 쓰임)",phonetic:"/nɪər/"},{word:"nearby",meaning:"근처에(의), 가까이(옆)의(장소 앞에만 쓰임)",phonetic:"/ˌnɪərˈbaɪ/"},{word:"nearly",meaning:"거의, 간신히(하마터면)",phonetic:"/ˈnɪər.li/"},{word:"engine",meaning:"엔진, 기관(차), 기계장치",phonetic:"/ˈen.dʒɪn/"},{word:"engineer",meaning:"기술자, 기사, 엔지니어",phonetic:"/ˌen.dʒɪˈnɪər/"},{word:"simple",meaning:"간단한, 단순한",phonetic:"/ˈsɪm.pəl/"},{word:"simply",meaning:"그냥(간단히), 그저(단순히)",phonetic:"/ˈsɪm.pli/"},{word:"ghost",meaning:"유령",phonetic:"/ɡoʊst/"},{word:"price",meaning:"값, 가격, 물가",phonetic:"/praɪs/"},{word:"lazy",meaning:"게으른, 나태한, 느긋한",phonetic:"/ˈleɪ.zi/"},{word:"lovely",meaning:"사랑스러운, 아여쁜(아름다운)",phonetic:"/ˈlʌv.li/"},{word:"modern",meaning:"현대적인(현대의), 근대의, 최신의",phonetic:"/ˈmɒd.ən/"},{word:"hole",meaning:"구멍, 구덩이",phonetic:"/hoʊl/"},{word:"whole",meaning:"전체(의), 전부, 모든",phonetic:"/hoʊl/"},{word:"blow",meaning:"(바람이)불다",phonetic:"/bloʊ/"},{word:"hall",meaning:"복도, 현관, 넓은 방(홀)",phonetic:"/hɔːl/"},{word:"pour",meaning:"(액체를)붓다, 따르다",phonetic:"/pɔːr/"},{word:"interview",meaning:"인터뷰, 인터뷰하다",phonetic:"/ˈɪn.tə.vjuː/"},{word:"then",meaning:"그때, 그 다음에, 그러면",phonetic:"/ðen/"},{word:"just then",meaning:"바로 그때",phonetic:"/dʒʌst ðen/"},{word:"thank you for~",meaning:"~에 감사하다",phonetic:"/θæŋk juː fɔːr/"},{word:"think of~",meaning:"~을 생각하다",phonetic:"/θɪŋk əv/"}],sentences:[{ko:"공원에 기념비가 있어.",en:"There is a monument in the park."},{ko:"나는 그 의견에 반대해.",en:"I am against that opinion."},{ko:"그는 정장을 잘 어울려.",en:"The suit suits him well."},{ko:"학교 근처에 살아.",en:"I live near the school."},{ko:"근처에 편의점이 있어.",en:"There is a convenience store nearby."},{ko:"거의 다 왔어.",en:"We are nearly there."},{ko:"자동차 엔진이 고장났어.",en:"The car engine broke down."},{ko:"나는 엔지니어가 되고 싶어.",en:"I want to be an engineer."},{ko:"이건 아주 간단한 문제야.",en:"This is a very simple problem."},{ko:"그냥 말해.",en:"Simply say it."},{ko:"귀신이 무서워.",en:"I am scared of ghosts."},{ko:"이 가격은 너무 비싸.",en:"This price is too expensive."},{ko:"게으르게 살지 마.",en:"Don't be lazy."},{ko:"정말 사랑스러운 아기야.",en:"What a lovely baby."},{ko:"이건 현대적인 건물이야.",en:"This is a modern building."},{ko:"양말에 구멍이 났어.",en:"There is a hole in my sock."},{ko:"사과 한 개 전부 먹었어.",en:"I ate a whole apple."},{ko:"바람이 세게 불어.",en:"The wind blows hard."},{ko:"복도에서 뛰지 마.",en:"Don't run in the hall."},{ko:"물을 컵에 따라줘.",en:"Pour water into the cup."},{ko:"인터뷰를 잘 봤어.",en:"The interview went well."},{ko:"그때 나는 집에 있었어.",en:"I was at home then."},{ko:"바로 그때 전화가 왔어.",en:"Just then, the phone rang."},{ko:"도와줘서 감사해.",en:"Thank you for your help."},{ko:"그를 생각하고 있어.",en:"I am thinking of him."}]},
+  {id:'3-12',label:'3-12',name:'고향·지도자·평화',words:[{word:"hometown",meaning:"고향",phonetic:"/ˈhoʊm.taʊn/"},{word:"step",meaning:"(한)걸음, 계단, 단계",phonetic:"/step/"},{word:"add",meaning:"더하다, 보태다, 첨가하다",phonetic:"/æd/"},{word:"rope",meaning:"밧줄, 줄",phonetic:"/roʊp/"},{word:"kindness",meaning:"친절, 다정함",phonetic:"/ˈkaɪnd.nəs/"},{word:"musician",meaning:"음악가",phonetic:"/mjuːˈzɪʃ.ən/"},{word:"president",meaning:"대통령, 사장(회장), 총장",phonetic:"/ˈprez.ɪ.dənt/"},{word:"principal",meaning:"교장, 주요한",phonetic:"/ˈprɪn.sɪ.pəl/"},{word:"silver",meaning:"은, 은화",phonetic:"/ˈsɪl.vər/"},{word:"probably",meaning:"아마도(= maybe)",phonetic:"/ˈprɒb.ə.bli/"},{word:"pound",meaning:"파운드(영국 화폐·무게 단위), 치다(두드리다)",phonetic:"/paʊnd/"},{word:"state",meaning:"상태, 국가(의), (미국의)주",phonetic:"/steɪt/"},{word:"sunshine",meaning:"햇빛, 햇살, 일광",phonetic:"/ˈsʌn.ʃaɪn/"},{word:"opera",meaning:"오페라, 가극",phonetic:"/ˈɒp.ər.ə/"},{word:"peace",meaning:"평화",phonetic:"/piːs/"},{word:"peaceful",meaning:"평화로운",phonetic:"/ˈpiːs.fəl/"},{word:"captain",meaning:"우두머리, 선장, 지도자(지휘관)",phonetic:"/ˈkæp.tɪn/"},{word:"rule",meaning:"규칙, 규정, 원칙, 통치하다, 지배하다",phonetic:"/ruːl/"},{word:"ruler",meaning:"통치자, 지배자, (눈금)자",phonetic:"/ˈruː.lər/"},{word:"in front of",meaning:"~의 앞쪽에(앞에)",phonetic:"/ɪn frʌnt əv/"},{word:"out of~",meaning:"~(안에서)밖으로, 바깥에, 벗어나서",phonetic:"/aʊt əv/"},{word:"into",meaning:"~안(속)으로",phonetic:"/ˈɪn.tuː/"},{word:"fold",meaning:"접다, 접어 포개다",phonetic:"/foʊld/"},{word:"unfold",meaning:"(접혀 있는 것을) 펴다, 펼치다",phonetic:"/ʌnˈfoʊld/"},{word:"how about~",meaning:"~는(하는 건)어때?, ~할까?",phonetic:"/haʊ əˈbaʊt/"}],sentences:[{ko:"나는 고향이 제주도야.",en:"My hometown is Jeju Island."},{ko:"한 걸음씩 나아가.",en:"Take it step by step."},{ko:"설탕을 조금 더해.",en:"Add a little sugar."},{ko:"밧줄로 묶었어.",en:"I tied it with a rope."},{ko:"그의 친절함에 감동받았어.",en:"I was touched by his kindness."},{ko:"그는 유명한 음악가야.",en:"He is a famous musician."},{ko:"대통령이 연설을 했어.",en:"The president gave a speech."},{ko:"교장 선생님께 인사드렸어.",en:"I greeted the principal."},{ko:"은 반지를 샀어.",en:"I bought a silver ring."},{ko:"아마 내일 비가 올 거야.",en:"It will probably rain tomorrow."},{ko:"영국에서는 파운드를 써.",en:"In the UK, they use pounds."},{ko:"그의 상태가 좋지 않아.",en:"His state is not good."},{ko:"햇빛이 따뜻해.",en:"The sunshine is warm."},{ko:"오페라를 처음 봤어.",en:"I watched an opera for the first time."},{ko:"세계 평화를 원해.",en:"I want world peace."},{ko:"이 마을은 정말 평화로워.",en:"This village is very peaceful."},{ko:"배의 선장은 키가 커.",en:"The ship's captain is tall."},{ko:"규칙을 지켜야 해.",en:"You must follow the rules."},{ko:"자로 줄을 그었어.",en:"I drew a line with a ruler."},{ko:"학교 앞에서 만나자.",en:"Let's meet in front of the school."},{ko:"상자 밖으로 나왔어.",en:"I came out of the box."},{ko:"방 안으로 들어가.",en:"Go into the room."},{ko:"종이를 접어.",en:"Fold the paper."},{ko:"종이를 펴.",en:"Unfold the paper."},{ko:"피자 어때?",en:"How about pizza?"}]},
+  {id:'3-13',label:'3-13',name:'우주·법·발견',words:[{word:"universe",meaning:"우주",phonetic:"/ˈjuː.nɪ.vɜːrs/"},{word:"goal",meaning:"골, 득점, 목표, 목적",phonetic:"/ɡoʊl/"},{word:"height",meaning:"높이, 키(신장)",phonetic:"/haɪt/"},{word:"weight",meaning:"무게, 체중",phonetic:"/weɪt/"},{word:"value",meaning:"가치, 소중히 여기다",phonetic:"/ˈvæl.juː/"},{word:"valuable",meaning:"가치있는, 소중한, 귀중한",phonetic:"/ˈvæl.jʊ.bəl/"},{word:"treat",meaning:"대접, 대접하다, 치료하다",phonetic:"/triːt/"},{word:"treatment",meaning:"치료, 처치, 대우",phonetic:"/ˈtriːt.mənt/"},{word:"forgive",meaning:"용서하다",phonetic:"/fəˈɡɪv/"},{word:"tower",meaning:"탑, 타워(고층 빌딩)",phonetic:"/ˈtaʊ.ər/"},{word:"remove",meaning:"제거하다, 치우다(없애다)",phonetic:"/rɪˈmuːv/"},{word:"smoke",meaning:"담배 피우다, 연기",phonetic:"/smoʊk/"},{word:"leaf",meaning:"나뭇잎",phonetic:"/liːf/"},{word:"possible",meaning:"가능한",phonetic:"/ˈpɒs.ɪ.bəl/"},{word:"impossible",meaning:"불가능한",phonetic:"/ɪmˈpɒs.ɪ.bəl/"},{word:"lend",meaning:"빌려주다",phonetic:"/lend/"},{word:"borrow",meaning:"빌리다, 차용하다",phonetic:"/ˈbɒr.oʊ/"},{word:"law",meaning:"법, 법률",phonetic:"/lɔː/"},{word:"lawyer",meaning:"변호사, 법률가",phonetic:"/ˈlɔː.jər/"},{word:"bit",meaning:"조금, 작은 조각",phonetic:"/bɪt/"},{word:"discover",meaning:"발견하다",phonetic:"/dɪˈskʌv.ər/"},{word:"discovery",meaning:"발견, 발견물",phonetic:"/dɪˈskʌv.ər.i/"},{word:"at first",meaning:"처음에, 최초에",phonetic:"/æt fɜːrst/"},{word:"at last",meaning:"마침내, 드디어",phonetic:"/æt læst/"},{word:"at once",meaning:"한번에(동시에), 즉시(당장)",phonetic:"/æt wʌns/"}],sentences:[
+      {ko:"우주는 정말 넓어.",en:"The universe is very wide."},
+      {ko:"목표를 향해 노력해.",en:"Try hard toward your goal."},
+      {ko:"키가 몇이야?",en:"What is your height?"},
+      {ko:"몸무게가 얼마야?",en:"What is your weight?"},
+      {ko:"이것의 가치는 정말 커.",en:"The value of this is very great."},
+      {ko:"우정은 소중한 거야.",en:"Friendship is valuable."},
+      {ko:"친구를 저녁으로 대접했어.",en:"I treated my friend to dinner."},
+      {ko:"치료를 잘 받았어.",en:"I received good treatment."},
+      {ko:"나를 용서해줘.",en:"Please forgive me."},
+      {ko:"에펠탑은 프랑스에 있어.",en:"The Eiffel Tower is in France."},
+      {ko:"얼룩을 제거했어.",en:"I removed the stain."},
+      {ko:"여기서 담배 피우지 마.",en:"Don't smoke here."},
+      {ko:"나뭇잎이 떨어졌어.",en:"A leaf fell down."},
+      {ko:"그게 가능해?",en:"Is that possible?"},
+      {ko:"그건 불가능해.",en:"That is impossible."},
+      {ko:"연필 빌려줄게.",en:"I will lend you a pencil."},
+      {ko:"지우개 빌려도 돼?",en:"Can I borrow your eraser?"},
+      {ko:"법을 지켜야 해.",en:"You must follow the law."},
+      {ko:"그는 변호사야.",en:"He is a lawyer."},
+      {ko:"조금만 기다려.",en:"Wait a bit."},
+      {ko:"새로운 행성을 발견했어.",en:"They discovered a new planet."},
+      {ko:"위대한 발견이었어.",en:"It was a great discovery."},
+      {ko:"처음에는 어려웠어.",en:"At first, it was difficult."},
+      {ko:"마침내 성공했어.",en:"At last, I succeeded."},
+      {ko:"즉시 와줘.",en:"Come at once."}
+    ]},
+  {id:'3-14',label:'3-14',name:'자연·보호·오염',words:[{word:"nature",meaning:"자연(계), 천성(본성)",phonetic:"/ˈneɪ.tʃər/"},{word:"natural",meaning:"자연의, 천연의, 타고난, 자연 발생적인",phonetic:"/ˈnætʃ.ər.əl/"},{word:"strange",meaning:"이상한, 낯선",phonetic:"/streɪndʒ/"},{word:"stranger",meaning:"낯선 사람, 이방인",phonetic:"/ˈstreɪn.dʒər/"},{word:"adult",meaning:"어른, 어른의",phonetic:"/ˈæd.ʌlt/"},{word:"magazine",meaning:"잡지",phonetic:"/ˌmæɡ.əˈziːn/"},{word:"method",meaning:"방법, 방식",phonetic:"/ˈmeθ.əd/"},{word:"talent",meaning:"재능, 재주",phonetic:"/ˈtæl.ənt/"},{word:"talented",meaning:"재능(재주)있는",phonetic:"/ˈtæl.ən.tɪd/"},{word:"protect",meaning:"보호하다",phonetic:"/prəˈtekt/"},{word:"protection",meaning:"보호, 방어, 보호장치",phonetic:"/prəˈtek.ʃən/"},{word:"program",meaning:"프로그램, 계획(표), (교과)과정",phonetic:"/ˈproʊ.ɡræm/"},{word:"tear",meaning:"눈물, 찢어진 곳(구멍), 찢다, 찢어지다",phonetic:"/tɪər/"},{word:"pollute",meaning:"더럽히다, 오염시키다",phonetic:"/pəˈluːt/"},{word:"pollution",meaning:"오염(물질), 공해",phonetic:"/pəˈluː.ʃən/"},{word:"statue",meaning:"동상, 조각상",phonetic:"/ˈstætʃ.uː/"},{word:"glory",meaning:"영광, 찬란한 아름다움, 자랑스러운 것(사람)",phonetic:"/ˈɡlɔːr.i/"},{word:"climate",meaning:"기후, 풍토",phonetic:"/ˈklaɪ.mɪt/"},{word:"unless",meaning:"만일 ~ 하지 않으면",phonetic:"/ənˈles/"},{word:"crab",meaning:"게, 게살, 크랩",phonetic:"/kræb/"},{word:"shrimp",meaning:"새우",phonetic:"/ʃrɪmp/"},{word:"all day",meaning:"하루 종일, 온 종일",phonetic:"/ɔːl deɪ/"},{word:"every day",meaning:"매일, 날마다",phonetic:"/ˈev.ri deɪ/"},{word:"someday",meaning:"(미래의)언젠가",phonetic:"/ˈsʌm.deɪ/"},{word:"one day",meaning:"(과거 또는 미래의)어느 날",phonetic:"/wʌn deɪ/"}],sentences:[{ko:"자연을 사랑해.",en:"I love nature."},{ko:"이건 천연 재료야.",en:"This is a natural ingredient."},{ko:"이상한 소리가 들려.",en:"I hear a strange sound."},{ko:"낯선 사람을 따라가지 마.",en:"Don't follow a stranger."},{ko:"어른한테 예의 바르게 대해.",en:"Be polite to adults."},{ko:"잡지를 읽었어.",en:"I read a magazine."},{ko:"좋은 방법이 있어.",en:"There is a good method."},{ko:"그는 음악적 재능이 있어.",en:"He has musical talent."},{ko:"그녀는 정말 재능 있어.",en:"She is very talented."},{ko:"환경을 보호해야 해.",en:"We must protect the environment."},{ko:"동물 보호가 중요해.",en:"Animal protection is important."},{ko:"방과후 프로그램에 참여해.",en:"I join the after-school program."},{ko:"슬퍼서 눈물이 났어.",en:"I shed tears because I was sad."},{ko:"강을 오염시키지 마.",en:"Don't pollute the river."},{ko:"공기 오염이 심각해.",en:"Air pollution is serious."},{ko:"공원에 동상이 있어.",en:"There is a statue in the park."},{ko:"우리 팀의 영광이야.",en:"It is the glory of our team."},{ko:"기후가 변하고 있어.",en:"The climate is changing."},{ko:"서두르지 않으면 늦어.",en:"Unless you hurry, you will be late."},{ko:"게를 먹었어.",en:"I ate crab."},{ko:"새우 볶음밥을 먹었어.",en:"I had shrimp fried rice."},{ko:"하루 종일 공부했어.",en:"I studied all day."},{ko:"나는 매일 운동해.",en:"I exercise every day."},{ko:"언젠가 세계 여행을 할 거야.",en:"Someday I will travel the world."},{ko:"어느 날 기적이 일어났어.",en:"One day, a miracle happened."}]},
+  {id:'3-15',label:'3-15',name:'극장·대학·메시지',words:[{word:"bark",meaning:"(개 등이)짖다, 짖는 소리, 나무껍질",phonetic:"/bɑːrk/"},{word:"rise",meaning:"증가, 상승, 오르다, 상승하다",phonetic:"/raɪz/"},{word:"raise",meaning:"(위로)올리다, (임금)인상, 키우다(기르다), 일으켜 세우다",phonetic:"/reɪz/"},{word:"character",meaning:"성격, 특징, 등장인물",phonetic:"/ˈkær.ɪk.tər/"},{word:"deep",meaning:"깊은",phonetic:"/diːp/"},{word:"shallow",meaning:"얕은, 얄팍한",phonetic:"/ˈʃæl.oʊ/"},{word:"Russia",meaning:"러시아",phonetic:"/ˈrʌʃ.ə/"},{word:"Russian",meaning:"러시아인, 러시아어, 러시아의",phonetic:"/ˈrʌʃ.ən/"},{word:"host",meaning:"주인, (TV쇼)사회자",phonetic:"/hoʊst/"},{word:"join",meaning:"연결하다, 함께하다(참가하다)",phonetic:"/dʒɔɪn/"},{word:"area",meaning:"지역, 구역, 면적",phonetic:"/ˈeər.i.ə/"},{word:"rush",meaning:"돌진, 혼잡함, 돌진하다, 서두르다",phonetic:"/rʌʃ/"},{word:"theater",meaning:"극장, 영화관",phonetic:"/ˈθɪə.tər/"},{word:"thought",meaning:"생각, 사상",phonetic:"/θɔːt/"},{word:"hang",meaning:"걸다, 매달다",phonetic:"/hæŋ/"},{word:"especially",meaning:"특히, 특별히, 유난히",phonetic:"/ɪˈspeʃ.ə.li/"},{word:"university",meaning:"대학교",phonetic:"/ˌjuː.nɪˈvɜː.sɪ.ti/"},{word:"college",meaning:"단과대학, 대학",phonetic:"/ˈkɒl.ɪdʒ/"},{word:"brush",meaning:"붓, 솔, 빗다, 솔질을 하다",phonetic:"/brʌʃ/"},{word:"message",meaning:"메시지, (휴대폰)문자",phonetic:"/ˈmes.ɪdʒ/"},{word:"all over",meaning:"곳곳에, 온 곳에(근방 전체에)",phonetic:"/ɔːl ˈoʊ.vər/"},{word:"turn",meaning:"(방향을 바꿔)돌다, 돌리다, 차례, 순번",phonetic:"/tɜːrn/"},{word:"seat belt",meaning:"안전벨트",phonetic:"/ˈsiːt belt/"},{word:"be good at~",meaning:"~에 능숙하다, ~을 잘하다",phonetic:"/bi ɡʊd æt/"},{word:"take a picture",meaning:"사진을 찍다",phonetic:"/teɪk ə ˈpɪk.tʃər/"}],sentences:[{ko:"개가 크게 짖었어.",en:"The dog barked loudly."},{ko:"물가가 오르고 있어.",en:"Prices are rising."},{ko:"손을 들어.",en:"Raise your hand."},{ko:"이 영화 주인공이 마음에 들어.",en:"I like the main character of this movie."},{ko:"이 연못은 깊어.",en:"This pond is deep."},{ko:"이 강은 얕아.",en:"This river is shallow."},{ko:"러시아는 세계에서 가장 큰 나라야.",en:"Russia is the largest country in the world."},{ko:"그는 러시아어를 할 수 있어.",en:"He can speak Russian."},{ko:"그는 TV 프로그램 사회자야.",en:"He is the host of a TV program."},{ko:"우리 동아리에 참여해.",en:"Join our club."},{ko:"이 지역은 조용해.",en:"This area is quiet."},{ko:"서두르지 마.",en:"Don't rush."},{ko:"극장에서 영화를 봤어.",en:"I watched a movie at the theater."},{ko:"좋은 생각이 떠올랐어.",en:"A good thought came to me."},{ko:"벽에 그림을 걸었어.",en:"I hung a picture on the wall."},{ko:"특히 수학을 잘 해.",en:"I am especially good at math."},{ko:"대학교에 가고 싶어.",en:"I want to go to university."},{ko:"이 대학은 유명해.",en:"This college is famous."},{ko:"이를 닦았어.",en:"I brushed my teeth."},{ko:"문자 메시지를 보냈어.",en:"I sent a text message."},{ko:"꽃이 온 마을에 피었어.",en:"Flowers bloomed all over the village."},{ko:"좌회전을 해.",en:"Turn left."},{ko:"안전벨트를 매.",en:"Fasten your seat belt."},{ko:"나는 수영을 잘 해.",en:"I am good at swimming."},{ko:"사진을 찍었어.",en:"I took a picture."}]},
+  {id:'3-16',label:'3-16',name:'습관·도전·영웅',words:[{word:"metal",meaning:"금속",phonetic:"/ˈmet.əl/"},{word:"symbol",meaning:"상징(물), 부호, 기호",phonetic:"/ˈsɪm.bəl/"},{word:"gym",meaning:"체육관(= gymnasium)",phonetic:"/dʒɪm/"},{word:"ambulance",meaning:"구급차",phonetic:"/ˈæm.bjʊ.ləns/"},{word:"habit",meaning:"습관",phonetic:"/ˈhæb.ɪt/"},{word:"hobby",meaning:"취미",phonetic:"/ˈhɒb.i/"},{word:"nervous",meaning:"불안한, 초조한, 긴장되는",phonetic:"/ˈnɜː.vəs/"},{word:"create",meaning:"창조(창작)하다",phonetic:"/kriˈeɪt/"},{word:"comfortable",meaning:"편한, 편안한",phonetic:"/ˈkʌmf.tə.bəl/"},{word:"uncomfortable",meaning:"불편한",phonetic:"/ʌnˈkʌmf.tə.bəl/"},{word:"recycle",meaning:"재활용하다",phonetic:"/ˌriːˈsaɪ.kəl/"},{word:"harmony",meaning:"조화, 화합",phonetic:"/ˈhɑːr.mə.ni/"},{word:"model",meaning:"모형, 모범, (상품의)모델",phonetic:"/ˈmɒd.əl/"},{word:"servant",meaning:"하인, 고용인",phonetic:"/ˈsɜː.vənt/"},{word:"prepare",meaning:"준비하다, 대비하다",phonetic:"/prɪˈpeər/"},{word:"challenge",meaning:"도전, 도전하다",phonetic:"/ˈtʃæl.ɪndʒ/"},{word:"survive",meaning:"살아남다",phonetic:"/səˈvaɪv/"},{word:"position",meaning:"위치, (적절한)자리, 지위, 입장",phonetic:"/pəˈzɪʃ.ən/"},{word:"praise",meaning:"칭찬, 칭찬하다",phonetic:"/preɪz/"},{word:"hero",meaning:"영웅",phonetic:"/ˈhɪər.oʊ/"},{word:"announce",meaning:"발표하다, 방송으로 알리다, 선언하다",phonetic:"/əˈnaʊns/"},{word:"announcer",meaning:"아나운서",phonetic:"/əˈnaʊn.sər/"},{word:"on television",meaning:"텔레비전에 나오는(= on TV)",phonetic:"/ɒn ˈtel.ɪ.vɪʒ.ən/"},{word:"channel",meaning:"채널, 주파수대",phonetic:"/ˈtʃæn.əl/"},{word:"wash the dishes",meaning:"설거지하다",phonetic:"/wɒʃ ðə ˈdɪʃ.ɪz/"}],sentences:[{ko:"철은 금속이야.",en:"Iron is a metal."},{ko:"비둘기는 평화의 상징이야.",en:"A dove is a symbol of peace."},{ko:"나는 체육관에서 운동해.",en:"I exercise at the gym."},{ko:"구급차가 빠르게 왔어.",en:"The ambulance came quickly."},{ko:"일찍 자는 게 내 습관이야.",en:"Going to bed early is my habit."},{ko:"내 취미는 독서야.",en:"My hobby is reading."},{ko:"발표 전에 긴장됐어.",en:"I was nervous before the presentation."},{ko:"새로운 것을 창조했어.",en:"I created something new."},{ko:"이 의자는 정말 편해.",en:"This chair is very comfortable."},{ko:"딱딱한 의자는 불편해.",en:"A hard chair is uncomfortable."},{ko:"병을 재활용할 수 있어.",en:"You can recycle bottles."},{ko:"우리는 조화롭게 살아야 해.",en:"We should live in harmony."},{ko:"그는 내 모범이야.",en:"He is my model."},{ko:"그는 왕의 하인이었어.",en:"He was the king's servant."},{ko:"시험을 준비했어.",en:"I prepared for the exam."},{ko:"새로운 도전을 해봐.",en:"Try a new challenge."},{ko:"어려움을 이겨냈어.",en:"I survived the difficulty."},{ko:"좋은 자리를 찾았어.",en:"I found a good position."},{ko:"선생님이 나를 칭찬해줬어.",en:"The teacher praised me."},{ko:"그는 진짜 영웅이야.",en:"He is a true hero."},{ko:"결과를 발표했어.",en:"They announced the result."},{ko:"그녀는 유명한 아나운서야.",en:"She is a famous announcer."},{ko:"TV에 나왔어.",en:"I appeared on television."},{ko:"채널을 바꿔줘.",en:"Change the channel."},{ko:"설거지를 도와줄게.",en:"I will help wash the dishes."}]},
+  {id:'3-17',label:'3-17',name:'매력·의학·운동',words:[{word:"attract",meaning:"유혹하다, (마음을)끌다",phonetic:"/əˈtrækt/"},{word:"attraction",meaning:"끌림, 매혹, 매력, 명소(명물), 즐길거리, 볼거리",phonetic:"/əˈtræk.ʃən/"},{word:"attractive",meaning:"매력적인, 매혹적인, (마음을)끄는",phonetic:"/əˈtræk.tɪv/"},{word:"repeat",meaning:"반복하다, 되풀이하다",phonetic:"/rɪˈpiːt/"},{word:"citizen",meaning:"시민, 주민",phonetic:"/ˈsɪt.ɪ.zən/"},{word:"warning",meaning:"경고, 주의",phonetic:"/ˈwɔːr.nɪŋ/"},{word:"warn",meaning:"경고하다, 주의를 주다",phonetic:"/wɔːrn/"},{word:"medical",meaning:"의학의",phonetic:"/ˈmed.ɪ.kəl/"},{word:"medicine",meaning:"약, 의학",phonetic:"/ˈmed.ɪ.sɪn/"},{word:"valley",meaning:"계곡(골짜기)",phonetic:"/ˈvæl.i/"},{word:"unite",meaning:"결합하다, 통합하다, 연합하다",phonetic:"/juːˈnaɪt/"},{word:"source",meaning:"(사물의)근원, 원천, (자료의)출처, (정보)자료",phonetic:"/sɔːrs/"},{word:"harm",meaning:"피해(손해), 해치다, 피해를 입히다",phonetic:"/hɑːrm/"},{word:"wave",meaning:"파도, 물결, (손을)흔들다",phonetic:"/weɪv/"},{word:"pain",meaning:"아픔, 고통",phonetic:"/peɪn/"},{word:"painful",meaning:"(몸이)아픈, 괴로운",phonetic:"/ˈpeɪn.fəl/"},{word:"favor",meaning:"호의, 친절, 부탁",phonetic:"/ˈfeɪ.vər/"},{word:"favorite",meaning:"매우 좋아하는, 마음에 드는, 좋아하는 사람(물건)",phonetic:"/ˈfeɪ.vər.ɪt/"},{word:"athlete",meaning:"(운동)선수",phonetic:"/ˈæθ.liːt/"},{word:"suddenly",meaning:"갑자기",phonetic:"/ˈsʌd.ən.li/"},{word:"taste",meaning:"맛, 맛이 나다, 맛보다",phonetic:"/teɪst/"},{word:"expert",meaning:"전문가, 전문적인",phonetic:"/ˈek.spɜːrt/"},{word:"international",meaning:"국제적인, 국제의(국가간의)",phonetic:"/ˌɪn.təˈnæʃ.ən.əl/"},{word:"with a smile",meaning:"미소를 지으며",phonetic:"/wɪð ə smaɪl/"},{word:"from~ to…",meaning:"~부터 …까지",phonetic:"/frɒm … tuː/"}],sentences:[{ko:"꽃이 나비를 끌어들여.",en:"Flowers attract butterflies."},{ko:"이 도시는 볼거리가 많아.",en:"This city has many attractions."},{ko:"그녀는 정말 매력적이야.",en:"She is very attractive."},{ko:"한 번 더 반복해줘.",en:"Please repeat it once more."},{ko:"나는 이 도시의 시민이야.",en:"I am a citizen of this city."},{ko:"경고를 무시하지 마.",en:"Don't ignore the warning."},{ko:"위험하다고 경고했어.",en:"I warned that it was dangerous."},{ko:"의학적 검사가 필요해.",en:"A medical check is needed."},{ko:"약을 먹어.",en:"Take your medicine."},{ko:"계곡에서 물놀이했어.",en:"I played in the valley."},{ko:"힘을 합치면 할 수 있어.",en:"If we unite, we can do it."},{ko:"인터넷은 좋은 정보 출처야.",en:"The internet is a good source of information."},{ko:"환경을 해치지 마.",en:"Don't harm the environment."},{ko:"파도가 높아.",en:"The waves are high."},{ko:"배가 아파.",en:"I have pain in my stomach."},{ko:"이 상처는 정말 아파.",en:"This wound is very painful."},{ko:"부탁 들어줄 수 있어?",en:"Can you do me a favor?"},{ko:"피자가 내 최애 음식이야.",en:"Pizza is my favorite food."},{ko:"그는 올림픽 선수야.",en:"He is an Olympic athlete."},{ko:"갑자기 비가 왔어.",en:"It suddenly rained."},{ko:"이 케이크는 달콤한 맛이야.",en:"This cake tastes sweet."},{ko:"그는 요리 전문가야.",en:"He is a cooking expert."},{ko:"이건 국제 대회야.",en:"This is an international competition."},{ko:"그녀는 미소를 지으며 인사했어.",en:"She greeted me with a smile."},{ko:"아침부터 밤까지 공부했어.",en:"I studied from morning to night."}]},
+  {id:'3-18',label:'3-18',name:'경제·회복·다큐',words:[{word:"paste",meaning:"풀로 붙이다, (밀가루)반죽",phonetic:"/peɪst/"},{word:"sweep",meaning:"쓸다, 휩쓸다",phonetic:"/swiːp/"},{word:"selfish",meaning:"이기적인",phonetic:"/ˈsel.fɪʃ/"},{word:"selfishness",meaning:"이기적임, 제멋대로임",phonetic:"/ˈsel.fɪʃ.nəs/"},{word:"brief",meaning:"(시간이) 짧은, 잠시 동안의, 간단한",phonetic:"/briːf/"},{word:"recover",meaning:"회복하다, 회복되다",phonetic:"/rɪˈkʌv.ər/"},{word:"recovery",meaning:"회복",phonetic:"/rɪˈkʌv.ər.i/"},{word:"visible",meaning:"(눈에)보이는, 알아볼 수 있는",phonetic:"/ˈvɪz.ɪ.bəl/"},{word:"invisible",meaning:"(눈에)보이지 않는, 볼 수 없는",phonetic:"/ɪnˈvɪz.ɪ.bəl/"},{word:"stretch",meaning:"늘이다, (팔·다리를)뻗다",phonetic:"/stretʃ/"},{word:"economy",meaning:"경제, 경제상황",phonetic:"/ɪˈkɒn.ə.mi/"},{word:"economic",meaning:"경제의, 경제상의",phonetic:"/ˌiː.kəˈnɒm.ɪk/"},{word:"economical",meaning:"경제적인, 알뜰한",phonetic:"/ˌiː.kəˈnɒm.ɪ.kəl/"},{word:"delay",meaning:"지연, 지체, 연기, 미루다, 연기하다",phonetic:"/dɪˈleɪ/"},{word:"ignore",meaning:"무시하다, (사람·사물을) 못 본 척하다",phonetic:"/ɪɡˈnɔːr/"},{word:"ignorant",meaning:"무지한, 무식한",phonetic:"/ˈɪɡ.nər.ənt/"},{word:"ignorance",meaning:"무지, 무식",phonetic:"/ˈɪɡ.nər.əns/"},{word:"daily",meaning:"매일(의), 나날의",phonetic:"/ˈdeɪ.li/"},{word:"annual",meaning:"매년의, 연간의, 한 해의",phonetic:"/ˈæn.ju.əl/"},{word:"genre",meaning:"(예술 작품의)장르",phonetic:"/ˈʒɒn.rə/"},{word:"theme",meaning:"주제, 테마",phonetic:"/θiːm/"},{word:"document",meaning:"서류, 문서",phonetic:"/ˈdɒk.jʊ.mənt/"},{word:"documentary",meaning:"다큐멘터리, 기록물",phonetic:"/ˌdɒk.jʊˈmen.tər.i/"},{word:"fall over~",meaning:"~에 걸려 넘어지다",phonetic:"/fɔːl ˈoʊ.vər/"},{word:"fall ill(sick)",meaning:"병이 나다",phonetic:"/fɔːl ɪl/"}],sentences:[
+      {ko:"종이를 풀로 붙여.",en:"Paste the paper with glue."},
+      {ko:"바닥을 쓸었어.",en:"I swept the floor."},
+      {ko:"이기적으로 행동하지 마.",en:"Don't act selfish."},
+      {ko:"이기심은 나쁜 거야.",en:"Selfishness is bad."},
+      {ko:"잠깐 쉬자.",en:"Let's take a brief rest."},
+      {ko:"감기에서 회복됐어.",en:"I recovered from a cold."},
+      {ko:"빠른 회복을 바라.",en:"I hope for a quick recovery."},
+      {ko:"달이 잘 보여.",en:"The moon is visible."},
+      {ko:"공기는 눈에 보이지 않아.",en:"Air is invisible."},
+      {ko:"팔을 뻗어봐.",en:"Stretch your arms."},
+      {ko:"경제가 좋아지고 있어.",en:"The economy is getting better."},
+      {ko:"경제 상황이 어려워.",en:"The economic situation is difficult."},
+      {ko:"그녀는 알뜰한 사람이야.",en:"She is an economical person."},
+      {ko:"기차가 지연됐어.",en:"The train was delayed."},
+      {ko:"그의 말을 무시했어.",en:"I ignored what he said."},
+      {ko:"무지한 행동을 하지 마.",en:"Don't act ignorant."},
+      {ko:"무지는 위험해.",en:"Ignorance is dangerous."},
+      {ko:"일기를 매일 써.",en:"I write in my diary daily."},
+      {ko:"연례 축제가 열렸어.",en:"The annual festival was held."},
+      {ko:"내가 좋아하는 장르는 액션이야.",en:"My favorite genre is action."},
+      {ko:"이 영화의 주제는 우정이야.",en:"The theme of this movie is friendship."},
+      {ko:"중요한 문서를 받았어.",en:"I received an important document."},
+      {ko:"다큐멘터리를 봤어.",en:"I watched a documentary."},
+      {ko:"돌에 걸려 넘어졌어.",en:"I fell over a stone."},
+      {ko:"감기가 들었어.",en:"I fell ill with a cold."}
+    ]}
+];
+
+// ── 탭 전환 ──
+function switchTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+}
+
+// ── 공통 유틸 ──
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function normalize(s) { return s.trim().toLowerCase().replace(/[^a-z0-9\s\-]/g, '').replace(/\s+/g, ' '); }
+
+// ── 단원 그리드 공통 렌더 ──
+function renderUnitGrid(containerId, selSet, colorVar, onToggle) {
+  document.getElementById(containerId).innerHTML = UNITS.map(u => `
+    <div class="unit-card" id="${containerId}_${u.id}" data-id="${u.id}" onclick="${onToggle}('${u.id}')">
+      <div class="u-check">✓</div>
+      <div class="u-label">${u.label}</div>
+      <div class="u-name">${u.name}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════
+//  탭1: 타이핑 테스트
+// ══════════════════════════════
+let tSelUnits = new Set();
+let tMode = 'listen';
+let tQs = [], tCur = 0, tCorrect = 0, tWrong = 0, tResults = [], tAttempts = 0;
+
+renderUnitGrid('t-unitGrid', tSelUnits, '--indigo', 'tToggle');
+
+function tToggle(id) {
+  tSelUnits.has(id) ? tSelUnits.delete(id) : tSelUnits.add(id);
+  document.querySelectorAll('#t-unitGrid .unit-card').forEach(el => el.classList.remove('sel'));
+  tSelUnits.forEach(id => document.querySelector(`#t-unitGrid [data-id="${id}"]`)?.classList.add('sel'));
+  const total = [...tSelUnits].reduce((s, id) => s + (UNITS.find(u => u.id === id)?.words.length || 0), 0);
+  document.getElementById('t-btnStart').disabled = tSelUnits.size === 0;
+  document.getElementById('t-selInfo').textContent = tSelUnits.size === 0 ? '단원을 선택하세요' : `${[...tSelUnits].map(id => UNITS.find(u=>u.id===id)?.label).join(', ')} · 총 ${total}개`;
+}
+
+function setTMode(m) {
+  tMode = m;
+  document.getElementById('tm-listen').classList.toggle('sel', m === 'listen');
+  document.getElementById('tm-meaning').classList.toggle('sel', m === 'meaning');
+}
+
+function tStart(all) {
+  const ids = all ? UNITS.map(u => u.id) : [...tSelUnits];
+  let words = [];
+  UNITS.filter(u => ids.includes(u.id)).forEach(u => words.push(...u.words));
+  tQs = shuffle(words); tCur = 0; tCorrect = 0; tWrong = 0; tResults = []; tAttempts = 0;
+  const lbl = all ? `전체 ${tQs.length}개 랜덤` : `${ids.map(id=>UNITS.find(u=>u.id===id)?.label).join('+')} · ${tQs.length}개`;
+  document.getElementById('t-gameLabel').textContent = lbl;
+  document.getElementById('t-select').style.display = 'none';
+  document.getElementById('t-game').style.display = 'block';
+  document.getElementById('t-result').style.display = 'none';
+  tShowQ();
+}
+
+function tBack() {
+  document.getElementById('t-select').style.display = 'block';
+  document.getElementById('t-game').style.display = 'none';
+  document.getElementById('t-result').style.display = 'none';
+}
+
+function tShowQ() {
+  const w = tQs[tCur]; tAttempts = 0;
+  const n = tQs.length;
+  document.getElementById('t-progLbl').textContent = `${tCur + 1} / ${n}`;
+  document.getElementById('t-scoreLbl').textContent = `✅ ${tCorrect}  ❌ ${tWrong}`;
+  document.getElementById('t-progFill').style.width = Math.round(tCur / n * 100) + '%';
+  if (tMode === 'listen') {
+    document.getElementById('t-badge').textContent = '🔊 듣고 쓰기';
+    document.getElementById('t-prompt').textContent = '발음을 듣고 영어 단어를 입력하세요';
+    document.getElementById('t-word').textContent = '';
+    document.getElementById('t-phonetic').textContent = '';
+    document.getElementById('t-sndBtn').style.display = 'inline-flex';
+    setTimeout(tSpeak, 300);
+  } else {
+    document.getElementById('t-badge').textContent = '🇰🇷 뜻 보고 쓰기';
+    document.getElementById('t-prompt').textContent = '한국어 뜻을 보고 영어 단어를 입력하세요';
+    document.getElementById('t-word').textContent = w.meaning;
+    document.getElementById('t-phonetic').textContent = '';
+    document.getElementById('t-sndBtn').style.display = 'none';
+  }
+  const inp = document.getElementById('t-input');
+  inp.value = ''; inp.className = 'ans-input'; inp.disabled = false;
+  document.getElementById('t-feedback').className = 'feedback';
+  document.getElementById('t-submit').style.display = '';
+  document.getElementById('t-next').style.display = 'none';
+  setTimeout(() => inp.focus(), 100);
+}
+
+function tSpeak() {
+  const w = tQs[tCur];
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(w.word); u.lang = 'en-US'; u.rate = 0.8;
+  window.speechSynthesis.speak(u);
+}
+
+function tKey(e) {
+  if (e.key === 'Enter') { document.getElementById('t-next').style.display !== 'none' ? tNext() : tSubmit(); }
+}
+
+function tSubmit() {
+  const w = tQs[tCur];
+  const inp = document.getElementById('t-input');
+  if (!inp.value.trim()) { inp.focus(); return; }
+  const correct = [w.word, ...w.word.split('/').map(s => s.trim())].map(normalize).includes(normalize(inp.value));
+  const fb = document.getElementById('t-feedback');
+  if (correct) {
+    inp.className = 'ans-input ok'; fb.className = 'feedback ok';
+    fb.textContent = `⭕ 정답! "${w.word}" ${w.phonetic}`;
+    tCorrect++; tResults.push({ word: w, ans: inp.value, ok: true });
+    inp.disabled = true;
+    document.getElementById('t-submit').style.display = 'none';
+    document.getElementById('t-next').style.display = '';
+    setTimeout(tNext, 1200);
+  } else {
+    tAttempts++;
+    if (tAttempts === 1) {
+      inp.className = 'ans-input try'; inp.value = '';
+      fb.className = 'feedback try';
+      fb.textContent = `🔄 다시 한번! 힌트: "${w.word[0]}${'_'.repeat(Math.max(0, w.word.length - 1))}"`;
+      if (tMode === 'listen') setTimeout(tSpeak, 300);
+      inp.focus();
+    } else {
+      inp.className = 'ans-input ng'; inp.disabled = true;
+      fb.className = 'feedback ng'; fb.textContent = `❌ 정답: "${w.word}" (${w.meaning})`;
+      tWrong++; tResults.push({ word: w, ans: inp.value, ok: false });
+      document.getElementById('t-submit').style.display = 'none';
+      document.getElementById('t-next').style.display = '';
+      setTimeout(tNext, 1800);
+    }
+  }
+}
+
+function tNext() {
+  tCur++;
+  if (tCur >= tQs.length) tShowResult();
+  else tShowQ();
+}
+
+function tShowResult() {
+  document.getElementById('t-game').style.display = 'none';
+  document.getElementById('t-result').style.display = 'block';
+  const total = tResults.length, pct = Math.round(tCorrect / total * 100);
+  document.getElementById('t-resEmoji').textContent = pct === 100 ? '🏆' : pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '💪';
+  document.getElementById('t-resScore').textContent = `${tCorrect} / ${total}`;
+  document.getElementById('t-resSub').textContent = `정답률 ${pct}% · ${pct===100?'완벽!':pct>=80?'잘했어요!':pct>=60?'조금 더 연습!':'다시 도전!'}`;
+  document.getElementById('t-resList').innerHTML = tResults.map(r =>
+    `<div class="res-item ${r.ok?'ok':'ng'}">
+      <span>${r.ok?'⭕':'❌'}</span>
+      <span class="ri-w">${r.word.word}</span>
+      <span class="ri-d">${r.ok ? r.word.meaning : `내 답: ${r.ans} → 정답: ${r.word.word}`}</span>
+    </div>`).join('');
+  const wc = tResults.filter(r => !r.ok).length;
+  document.getElementById('t-retryWrong').style.display = wc > 0 ? '' : 'none';
+}
+
+function tRetryWrong() {
+  tQs = shuffle(tResults.filter(r => !r.ok).map(r => r.word));
+  tCur = 0; tCorrect = 0; tWrong = 0; tResults = []; tAttempts = 0;
+  document.getElementById('t-gameLabel').textContent = `오답 재시험 · ${tQs.length}개`;
+  document.getElementById('t-result').style.display = 'none';
+  document.getElementById('t-game').style.display = 'block';
+  tShowQ();
+}
+
+function tShuffle() {
+  tQs = shuffle(tQs); tCur = 0; tCorrect = 0; tWrong = 0; tResults = []; tAttempts = 0;
+  document.getElementById('t-result').style.display = 'none';
+  tShowQ();
+}
+
+// ══════════════════════════════
+//  탭2: 받아쓰기
+// ══════════════════════════════
+let dSelUnits = new Set();
+let dWords = [], dCur = 0;
+let dSpeed = 0.8;
+let dAutoPlay = false;
+let dAutoTimer = null;
+
+renderUnitGrid('d-unitGrid', dSelUnits, '--teal', 'dToggle');
+
+function dToggle(id) {
+  dSelUnits.has(id) ? dSelUnits.delete(id) : dSelUnits.add(id);
+  document.querySelectorAll('#d-unitGrid .unit-card').forEach(el => el.classList.remove('sel'));
+  dSelUnits.forEach(id => document.querySelector(`#d-unitGrid [data-id="${id}"]`)?.classList.add('sel'));
+  const total = [...dSelUnits].reduce((s, id) => s + (UNITS.find(u => u.id === id)?.words.length || 0), 0);
+  document.getElementById('d-btnStart').disabled = dSelUnits.size === 0;
+  document.getElementById('d-selInfo').textContent = dSelUnits.size === 0 ? '단원을 선택하세요' : `${[...dSelUnits].map(id=>UNITS.find(u=>u.id===id)?.label).join(', ')} · 총 ${total}개`;
+}
+
+function updateSpeed() {
+  dSpeed = parseFloat(document.getElementById('d-speed').value);
+  document.getElementById('d-speedVal').textContent = dSpeed.toFixed(1) + '×';
+  document.getElementById('d-speed2').value = dSpeed;
+  document.getElementById('d-speedVal2').textContent = dSpeed.toFixed(1) + '×';
+}
+function updateSpeed2() {
+  dSpeed = parseFloat(document.getElementById('d-speed2').value);
+  document.getElementById('d-speedVal2').textContent = dSpeed.toFixed(1) + '×';
+  document.getElementById('d-speed').value = dSpeed;
+  document.getElementById('d-speedVal').textContent = dSpeed.toFixed(1) + '×';
+}
+
+function dStart(all) {
+  const ids = all ? UNITS.map(u => u.id) : [...dSelUnits];
+  dWords = [];
+  UNITS.filter(u => ids.includes(u.id)).forEach(u => dWords.push(...u.words));
+  dCur = 0;
+  const lbl = all ? `전체 ${dWords.length}개` : `${ids.map(id=>UNITS.find(u=>u.id===id)?.label).join('+')} · ${dWords.length}개`;
+  document.getElementById('d-gameLabel').textContent = lbl;
+  document.getElementById('d-select').style.display = 'none';
+  document.getElementById('d-game').style.display = 'block';
+  document.getElementById('d-answer').style.display = 'none';
+  dShowWord();
+  setTimeout(dSpeak, 400);
+}
+
+function dBack() {
+  dStopAuto();
+  window.speechSynthesis.cancel();
+  document.getElementById('d-select').style.display = 'block';
+  document.getElementById('d-game').style.display = 'none';
+  document.getElementById('d-answer').style.display = 'none';
+}
+
+function dShowWord() {
+  const w = dWords[dCur], n = dWords.length;
+  document.getElementById('d-num').textContent = `${dCur + 1} / ${n}번`;
+  document.getElementById('d-meaning').textContent = w.meaning;
+  document.getElementById('d-hint').textContent = `첫 글자: ${w.word[0].toUpperCase()} / 글자 수: ${w.word.length}자`;
+  document.getElementById('d-progFill').style.width = Math.round((dCur + 1) / n * 100) + '%';
+  document.getElementById('d-progLbl').textContent = `${dCur + 1} / ${n}`;
+  document.getElementById('d-prevBtn').disabled = dCur === 0;
+  document.getElementById('d-nextBtn').textContent = dCur === n - 1 ? '✅ 완료' : '다음 ▶';
+}
+
+function dSpeak() {
+  const w = dWords[dCur];
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  // 한국어 뜻 읽기 (~, 괄호 내용 등 제거)
+  const text = w.meaning.replace(/~/g, '').replace(/\(.*?\)/g, '').trim();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ko-KR'; u.rate = dSpeed;
+  window.speechSynthesis.speak(u);
+}
+
+function dPrev() { dStopAuto(); if (dCur > 0) { dCur--; dShowWord(); setTimeout(dSpeak, 300); } }
+function dNext() {
+  dStopAuto();
+  if (dCur < dWords.length - 1) { dCur++; dShowWord(); setTimeout(dSpeak, 300); }
+  else dShowAnswer();
+}
+
+function dShowAnswer() {
+  window.speechSynthesis.cancel();
+  document.getElementById('d-game').style.display = 'none';
+  document.getElementById('d-answer').style.display = 'block';
+  document.getElementById('d-answerBody').innerHTML = dWords.map((w, i) =>
+    `<tr>
+      <td class="ans-num">${i + 1}</td>
+      <td class="ans-ko">${w.meaning}</td>
+      <td class="ans-en">${w.word}</td>
+      <td class="ans-ph">${w.phonetic}</td>
+    </tr>`).join('');
+}
+
+function dHideAnswer() {
+  document.getElementById('d-answer').style.display = 'none';
+  document.getElementById('d-game').style.display = 'block';
+}
+
+function dShuffle() {
+  dStopAuto();
+  dWords = shuffle(dWords); dCur = 0;
+  dShowWord(); setTimeout(dSpeak, 300);
+}
+
+function dToggleAuto() {
+  if (dAutoPlay) dStopAuto();
+  else dStartAuto();
+}
+
+function dStartAuto() {
+  dAutoPlay = true;
+  document.getElementById('d-autoBtn').textContent = '⏹ 멈추기';
+  document.getElementById('d-autoBtn').style.background = 'var(--red)';
+  dAutoStep();
+}
+
+function dStopAuto() {
+  dAutoPlay = false;
+  if (dAutoTimer) { clearTimeout(dAutoTimer); dAutoTimer = null; }
+  const btn = document.getElementById('d-autoBtn');
+  if (btn) { btn.textContent = '▶ 자동재생'; btn.style.background = 'var(--purple)'; }
+}
+
+function dAutoStep() {
+  if (!dAutoPlay) return;
+  dShowWord();
+  // 단어 뜻 읽기
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const w = dWords[dCur];
+  const text = w.meaning.replace(/~/g, '').replace(/\(.*?\)/g, '').trim();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ko-KR'; u.rate = dSpeed;
+  u.onend = () => {
+    if (!dAutoPlay) return;
+    // 속도가 빠를수록 텀 짧게: 기본 글자당 1000ms, 속도로 나눔. 최소 600ms
+    const waitMs = Math.max(600, Math.round(w.word.length * 1000 / dSpeed));
+    dAutoTimer = setTimeout(() => {
+      if (!dAutoPlay) return;
+      if (dCur < dWords.length - 1) { dCur++; dAutoStep(); }
+      else { dStopAuto(); dShowAnswer(); }
+    }, waitMs);
+  };
+  window.speechSynthesis.speak(u);
+}
+
+// ══════════════════════════════
+//  탭3: 단어장
+// ══════════════════════════════
+let wSelUnit = null;
+let wWords = [], wCur = 0, wFlipped = false;
+
+renderUnitGrid('w-unitGrid', null, '--purple', 'wToggle');
+
+function wToggle(id) {
+  wSelUnit = (wSelUnit === id) ? null : id;
+  document.querySelectorAll('#w-unitGrid .unit-card').forEach(el => el.classList.remove('sel'));
+  if (wSelUnit) document.querySelector(`#w-unitGrid [data-id="${wSelUnit}"]`)?.classList.add('sel');
+  document.getElementById('w-btnStart').disabled = !wSelUnit;
+}
+
+function wStart(all) {
+  if (all) {
+    wWords = [];
+    UNITS.forEach(u => wWords.push(...u.words));
+    wWords = shuffle(wWords);
+    document.getElementById('w-gameLabel').textContent = `전체 ${wWords.length}개 단어`;
+  } else {
+    const unit = UNITS.find(u => u.id === wSelUnit);
+    wWords = [...unit.words];
+    document.getElementById('w-gameLabel').textContent = `${unit.label} ${unit.name} · ${unit.words.length}개`;
+  }
+  wCur = 0; wFlipped = false;
+  document.getElementById('w-select').style.display = 'none';
+  document.getElementById('w-game').style.display = 'block';
+  wShowCard();
+}
+
+function wBack() {
+  document.getElementById('w-select').style.display = 'block';
+  document.getElementById('w-game').style.display = 'none';
+}
+
+function wShowCard() {
+  const w = wWords[wCur], n = wWords.length;
+  wFlipped = false;
+  document.getElementById('w-card').classList.remove('flipped');
+  document.getElementById('w-ko').textContent = w.meaning;
+  document.getElementById('w-en').textContent = w.word;
+  document.getElementById('w-ph').textContent = w.phonetic;
+  document.getElementById('w-prog').textContent = `${wCur + 1} / ${n}`;
+  document.getElementById('w-prev').disabled = wCur === 0;
+  document.getElementById('w-next').textContent = wCur === n - 1 ? '✅ 완료' : '다음 ▶';
+}
+
+function wFlip() {
+  wFlipped = !wFlipped;
+  document.getElementById('w-card').classList.toggle('flipped', wFlipped);
+  if (wFlipped) setTimeout(wSpeak, 350);
+}
+
+function wSpeak() {
+  const w = wWords[wCur];
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(w.word);
+  u.lang = 'en-US'; u.rate = 0.8;
+  window.speechSynthesis.speak(u);
+}
+
+function wGo(d) {
+  if (d === 1 && wCur === wWords.length - 1) { wBack(); return; }
+  wCur = Math.max(0, Math.min(wWords.length - 1, wCur + d));
+  wShowCard();
+}
+
+function wShuffle() {
+  wWords = shuffle(wWords); wCur = 0; wShowCard();
+}
+
+// 스와이프 (단어장)
+(function() {
+  let tx = 0;
+  const card = document.getElementById('w-card');
+  card.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  card.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) { if (dx < 0) wGo(1); else wGo(-1); }
+    else wFlip();
+  }, { passive: true });
+})();
+
+// ── 키보드 단축키 ──
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement?.tagName;
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
+
+  const activeTab = document.querySelector('.tab-nav button.active')?.dataset.tab;
+
+  // 탭1: 타이핑 테스트 — 입력창에 포커스 있을 때만 Enter 처리 (tKey로 이미 처리됨)
+
+  // 탭2: 받아쓰기
+  if (activeTab === 'dictation') {
+    const gameVisible = document.getElementById('d-game').style.display !== 'none';
+    if (!gameVisible) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); dNext(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); dPrev(); }
+    else if (e.key === ' ') { e.preventDefault(); dSpeak(); }
+    else if (e.key === 'Enter') { e.preventDefault(); dToggleAuto(); }
+  }
+
+  // 탭3: 단어장
+  if (activeTab === 'wordbook') {
+    const gameVisible = document.getElementById('w-game').style.display !== 'none';
+    if (!gameVisible) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); wGo(1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); wGo(-1); }
+    else if (e.key === ' ') { e.preventDefault(); wFlip(); }
+  }
+});
+</script>
+</body>
+</html>
