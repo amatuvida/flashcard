@@ -246,6 +246,66 @@
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
 
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
+
+    /* ===== 시험 탭 추가 스타일 ===== */
+    .btn.exam-btn{background:linear-gradient(135deg,#e11d48 0%,#be123c 100%);}
+    .btn.list-btn{background:linear-gradient(135deg,#8b5cf6 0%,#7c3aed 100%);}
+
+    .exam-screen{display:none;}
+    .exam-intro{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1.25rem;border:0.5px solid var(--color-border-secondary);}
+    .exam-intro-title{font-size:15px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;}
+    .exam-steps{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+    .exam-step{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--color-text-secondary);}
+    .step-num{min-width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#e11d48,#be123c);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+    .exam-actions{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;}
+    .exam-q-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .exam-q-title{font-size:15px;font-weight:600;color:var(--color-text-primary);}
+    .exam-q-badge{font-size:12px;background:linear-gradient(135deg,#e11d48,#be123c);color:#fff;padding:3px 12px;border-radius:999px;font-weight:600;}
+    .exam-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:1.25rem;}
+    .exam-item{display:flex;align-items:baseline;gap:8px;padding:7px 10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);}
+    .exam-num{font-size:11px;color:var(--color-text-tertiary);min-width:22px;font-family:var(--font-mono);}
+    .exam-ko{font-size:13px;color:var(--color-text-primary);line-height:1.4;word-break:keep-all;}
+    .mode-sel{display:flex;gap:8px;margin-bottom:1.25rem;}
+    .mode-card{flex:1;border:1.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:14px 12px;cursor:pointer;text-align:center;transition:all .2s;background:var(--color-background-primary);-webkit-tap-highlight-color:transparent;}
+    .mode-card.selected{border-color:#e11d48;background:#fef2f2;}
+    .mode-card-icon{font-size:26px;margin-bottom:6px;}
+    .mode-card-title{font-size:13px;font-weight:600;color:var(--color-text-primary);}
+    .mode-card-desc{font-size:11px;color:var(--color-text-secondary);margin-top:3px;line-height:1.4;word-break:keep-all;}
+    .upload-zone{border:2px dashed var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:2rem 1rem;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:1rem;-webkit-tap-highlight-color:transparent;}
+    .upload-zone.has-img{border-color:#e11d48;background:var(--color-background-secondary);}
+    .upload-icon{font-size:36px;margin-bottom:8px;}
+    .upload-label{font-size:14px;color:var(--color-text-secondary);margin-bottom:4px;}
+    .upload-sub{font-size:12px;color:var(--color-text-tertiary);}
+    .upload-preview{max-width:100%;max-height:240px;border-radius:var(--border-radius-md);margin-top:12px;display:block;margin-left:auto;margin-right:auto;}
+    .typing-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:1.25rem;}
+    .typing-item{display:flex;flex-direction:column;gap:3px;}
+    .typing-num{font-size:10px;color:var(--color-text-tertiary);font-family:var(--font-mono);}
+    .typing-ko{font-size:11px;color:var(--color-text-primary);font-weight:600;margin-bottom:2px;line-height:1.3;word-break:keep-all;}
+    .typing-input{height:34px;border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:0 8px;font-size:12px;font-family:var(--font-sans);background:var(--color-background-primary);color:var(--color-text-primary);width:100%;-webkit-appearance:none;}
+    .typing-input:focus{outline:none;border-color:#6366f1;}
+    .typing-input.correct{border-color:#10b981;background:#ecfdf5;}
+    .typing-input.wrong{border-color:#f87171;background:#fef2f2;}
+    .grading-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1.25rem;border:0.5px solid var(--color-border-secondary);}
+    .grading-title{font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;}
+    .grading-log{font-size:12px;color:var(--color-text-secondary);line-height:1.8;max-height:120px;overflow-y:auto;font-family:var(--font-mono);}
+    .score-board{text-align:center;padding:1.5rem 1rem;background:linear-gradient(135deg,#fef2f2,#fff0f3);border-radius:var(--border-radius-lg);border:1.5px solid #fecdd3;margin-bottom:1.25rem;}
+    .score-big{font-size:52px;font-weight:700;color:#e11d48;line-height:1;}
+    .score-denom{font-size:16px;color:var(--color-text-secondary);margin-top:4px;}
+    .score-grade{font-size:20px;font-weight:600;margin-top:8px;}
+    .wrong-list{margin-bottom:1.25rem;}
+    .wrong-title{font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .wrong-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;}
+    .wrong-item{padding:8px 10px;border-radius:var(--border-radius-md);border:1px solid #fecdd3;background:#fef2f2;}
+    .wrong-item .w-num{font-size:10px;color:#f87171;font-family:var(--font-mono);}
+    .wrong-item .w-ko{font-size:12px;color:var(--color-text-primary);font-weight:600;margin-top:1px;line-height:1.3;}
+    .wrong-item .w-ans{font-size:11px;color:#10b981;margin-top:3px;}
+    .wrong-item .w-mine{font-size:11px;color:#f87171;margin-top:1px;}
+    .exam-result-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+    @media(max-width:480px){
+      .exam-grid{grid-template-columns:1fr;}
+      .typing-grid{grid-template-columns:1fr;}
+      .mode-sel{flex-direction:column;}
+    }
   </style>
 </head>
 <body>
@@ -261,6 +321,7 @@
     <div class="action-row">
       <button class="btn primary" id="btnSel" onclick="startSelected()" disabled><i class="ti ti-cards" aria-hidden="true"></i> 선택 학습</button>
       <button class="btn shuffle" onclick="startAll()"><i class="ti ti-stack" aria-hidden="true"></i> 전체 학습</button>
+      <button class="btn exam-btn" onclick="startExam()"><i class="ti ti-pencil" aria-hidden="true"></i> 100문제 시험</button>
       <button class="btn outline" onclick="clearSel()">초기화</button>
     </div>
   </div>
@@ -326,6 +387,98 @@
       </div>
     </div>
   </div>
+
+  <!-- ===== 시험 화면 ===== -->
+  <div class="exam-screen" id="S_exam">
+    <div class="game-header">
+      <button class="btn back sm" onclick="backToPkg()"><i class="ti ti-arrow-left" aria-hidden="true"></i> 목록</button>
+      <span class="game-label">📝 100문제 랜덤 시험 · 전체 450단어</span>
+    </div>
+
+    <!-- 시작 전 화면 -->
+    <div id="examIntro">
+      <div class="exam-intro">
+        <div class="exam-intro-title">📋 시험 방법</div>
+        <div class="exam-steps">
+          <div class="exam-step"><div class="step-num">1</div><div>아래 100문제를 확인하세요. 버튼을 누를 때마다 새로운 문제가 랜덤으로 출제돼요.</div></div>
+          <div class="exam-step"><div class="step-num">2</div><div>종이에 번호에 맞춰 영어 단어를 써주세요.</div></div>
+          <div class="exam-step"><div class="step-num">3</div><div>답안지 전체를 한 장으로 사진 찍어 업로드하거나, 직접 타이핑해서 채점받으세요.</div></div>
+        </div>
+      </div>
+
+      <!-- 입력 방식 선택 -->
+      <div class="mode-sel">
+        <div class="mode-card selected" id="modeCardPhoto" onclick="selectExamMode('photo')">
+          <div class="mode-card-icon">📷</div>
+          <div class="mode-card-title">사진 촬영</div>
+          <div class="mode-card-desc">손글씨 답안지를 한 장으로 찍어서 AI가 채점</div>
+        </div>
+        <div class="mode-card" id="modeCardType" onclick="selectExamMode('type')">
+          <div class="mode-card-icon">⌨️</div>
+          <div class="mode-card-title">직접 타이핑</div>
+          <div class="mode-card-desc">화면 입력칸에 타이핑해서 바로 채점</div>
+        </div>
+      </div>
+
+      <div class="exam-actions">
+        <button class="btn exam-btn" onclick="generateExam()"><i class="ti ti-refresh" aria-hidden="true"></i> 새 문제 생성</button>
+      </div>
+
+      <!-- 문제 목록 -->
+      <div id="examQuestionList" style="display:none">
+        <div class="exam-q-header">
+          <div class="exam-q-title">시험 문제</div>
+          <div class="exam-q-badge">100문제</div>
+        </div>
+        <div class="exam-grid" id="examGrid"></div>
+      </div>
+
+      <!-- 사진 업로드 -->
+      <div id="photoUploadArea" style="display:none">
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">📸</div>
+          <div class="upload-label">답안지 사진을 업로드하세요</div>
+          <div class="upload-sub">클릭하거나 파일을 여기에 드래그하세요</div>
+          <img id="uploadPreview" class="upload-preview" style="display:none" alt="업로드된 답안지">
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
+        <div style="text-align:center;margin-top:12px;">
+          <button class="btn exam-btn" id="gradePhotoBtn" onclick="gradePhoto()" disabled><i class="ti ti-check" aria-hidden="true"></i> AI 채점하기</button>
+        </div>
+      </div>
+
+      <!-- 타이핑 입력 -->
+      <div id="typeInputArea" style="display:none">
+        <div class="typing-grid" id="typingGrid"></div>
+        <div style="text-align:center;margin-bottom:1rem;">
+          <button class="btn exam-btn" onclick="gradeTyping()"><i class="ti ti-check" aria-hidden="true"></i> 채점하기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 채점 중 -->
+    <div id="examGrading" style="display:none">
+      <div class="grading-box">
+        <div class="grading-title">🤖 AI가 답안지를 분석하고 있어요...</div>
+        <div class="grading-log" id="gradingLog"></div>
+      </div>
+    </div>
+
+    <!-- 결과 화면 -->
+    <div id="examResult" style="display:none">
+      <div class="score-board">
+        <div class="score-big" id="scoreNum">0</div>
+        <div class="score-denom">/ 100</div>
+        <div class="score-grade" id="scoreGrade"></div>
+      </div>
+      <div class="wrong-list" id="wrongList"></div>
+      <div class="exam-result-acts">
+        <button class="btn exam-btn" onclick="retryExam()"><i class="ti ti-refresh" aria-hidden="true"></i> 다시 시험보기</button>
+        <button class="btn back" onclick="backToPkg()"><i class="ti ti-arrow-left" aria-hidden="true"></i> 단어장으로</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -487,6 +640,7 @@ function launchGame(ids){
   const label=UNITS.filter(u=>ids.includes(u.id)).map(u=>u.label).join(' + ');
   document.getElementById('gameLabel').textContent=label+' · '+gWords.length+'개 단어';
   document.getElementById('S_pkg').style.display='none';
+  document.getElementById('S_exam').style.display='none';
   document.getElementById('S_game').style.display='block';
   document.getElementById('cardArea').style.display='block';
   document.getElementById('resultArea').style.display='none';
@@ -496,7 +650,7 @@ function launchGame(ids){
   listOpen=false;document.getElementById('wordList').style.display='none';document.getElementById('listTxt').textContent='단어 목록 보기';
   showCard();
 }
-function backToPkg(){cancelAnim();inGame=false;document.getElementById('S_game').style.display='none';document.getElementById('S_pkg').style.display='block';}
+function backToPkg(){cancelAnim();inGame=false;document.getElementById('S_game').style.display='none';document.getElementById('S_exam').style.display='none';document.getElementById('S_pkg').style.display='block';}
 function setTabUI(t){document.getElementById('tabWord').classList.toggle('active',t==='word');document.getElementById('tabSent').classList.toggle('active',t==='sent');document.getElementById('modeToggle').style.visibility=t==='word'?'visible':'hidden';}
 function setTab(t){tab=t;setTabUI(t);showCard();}
 function setDir(d){dir=d;document.getElementById('modeKo').classList.toggle('active',d==='ko');document.getElementById('modeEn').classList.toggle('active',d==='en');showCard();}
@@ -570,6 +724,212 @@ document.addEventListener('keydown',e=>{if(!inGame)return;if(['INPUT','TEXTAREA'
 })();
 
 renderPkg();
+
+// ===== 시험 기능 =====
+const ALL_WORDS = UNITS.flatMap(u => u.words);
+let examWords = [], examMode = 'photo', uploadedImageB64 = null;
+
+function startExam() {
+  inGame = false;
+  document.getElementById('S_pkg').style.display = 'none';
+  document.getElementById('S_game').style.display = 'none';
+  document.getElementById('S_exam').style.display = 'block';
+  document.getElementById('examIntro').style.display = 'block';
+  document.getElementById('examGrading').style.display = 'none';
+  document.getElementById('examResult').style.display = 'none';
+  generateExam();
+}
+
+function generateExam() {
+  // 450개 전체에서 랜덤 100개 추출
+  const shuffled = [...ALL_WORDS].sort(() => Math.random() - 0.5);
+  examWords = shuffled.slice(0, 100);
+
+  // 문제 목록 렌더링
+  document.getElementById('examGrid').innerHTML = examWords.map((w, i) => `
+    <div class="exam-item">
+      <span class="exam-num">${String(i + 1).padStart(2, '0')}</span>
+      <span class="exam-ko">${w.meaning.split(',')[0].trim()}</span>
+    </div>`).join('');
+  document.getElementById('examQuestionList').style.display = 'block';
+
+  // 타이핑 입력칸 렌더링
+  document.getElementById('typingGrid').innerHTML = examWords.map((w, i) => `
+    <div class="typing-item">
+      <div class="typing-num">${String(i + 1).padStart(2, '0')}</div>
+      <div class="typing-ko">${w.meaning.split(',')[0].trim()}</div>
+      <input class="typing-input" id="ti_${i}" type="text" placeholder="영어 단어 입력" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>`).join('');
+
+  // 업로드 초기화
+  uploadedImageB64 = null;
+  const preview = document.getElementById('uploadPreview');
+  preview.style.display = 'none';
+  preview.src = '';
+  document.getElementById('uploadZone').classList.remove('has-img');
+  document.getElementById('gradePhotoBtn').disabled = true;
+
+  updateExamModeUI();
+}
+
+function selectExamMode(mode) {
+  examMode = mode;
+  document.getElementById('modeCardPhoto').classList.toggle('selected', mode === 'photo');
+  document.getElementById('modeCardType').classList.toggle('selected', mode === 'type');
+  updateExamModeUI();
+}
+
+function updateExamModeUI() {
+  document.getElementById('photoUploadArea').style.display = examMode === 'photo' ? 'block' : 'none';
+  document.getElementById('typeInputArea').style.display = examMode === 'type' ? 'block' : 'none';
+}
+
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    uploadedImageB64 = dataUrl.split(',')[1];
+    const preview = document.getElementById('uploadPreview');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+    document.getElementById('uploadZone').classList.add('has-img');
+    document.getElementById('gradePhotoBtn').disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+// 드래그앤드롭
+(function() {
+  const zone = document.getElementById('uploadZone');
+  if (!zone) return;
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = '#e11d48'; });
+  zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.style.borderColor = '';
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const dt = new DataTransfer(); dt.items.add(file);
+      document.getElementById('fileInput').files = dt.files;
+      handleFileUpload({ target: { files: dt.files } });
+    }
+  });
+})();
+
+async function gradePhoto() {
+  if (!uploadedImageB64) { alert('사진을 먼저 업로드해주세요!'); return; }
+  document.getElementById('examIntro').style.display = 'none';
+  document.getElementById('examGrading').style.display = 'block';
+  document.getElementById('gradingLog').textContent = '';
+
+  const answerKey = examWords.map((w, i) => `${i + 1}. ${w.word} (${w.meaning.split(',')[0].trim()})`).join('\n');
+  const prompt = `당신은 영어 단어 시험 채점관입니다.
+아래는 학생이 100문제 단어 시험을 풀고 손글씨로 쓴 답안지 사진입니다.
+
+정답 목록 (번호: 영어 단어):
+${answerKey}
+
+사진에서 학생이 쓴 각 번호의 답을 읽어서 정답과 비교해주세요.
+반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트는 포함하지 마세요:
+{"results":[{"num":1,"answer":"학생답","correct":true},{"num":2,"answer":"학생답","correct":false},...]}
+
+채점 기준:
+- 대소문자 구분 없이 채점
+- 철자가 완전히 일치해야 정답
+- 답을 쓰지 않은 경우 answer는 ""로, correct는 false로`;
+
+  try {
+    addLog('📷 사진 분석 중...');
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: uploadedImageB64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+    const data = await response.json();
+    addLog('✅ 분석 완료! 채점 중...');
+    const text = data.content[0].text;
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    showExamResult(parsed.results);
+  } catch (err) {
+    addLog('❌ 오류: ' + err.message);
+    alert('채점 중 오류가 발생했습니다. 다시 시도해주세요.');
+    document.getElementById('examGrading').style.display = 'none';
+    document.getElementById('examIntro').style.display = 'block';
+  }
+}
+
+function gradeTyping() {
+  const results = examWords.map((w, i) => {
+    const input = document.getElementById('ti_' + i);
+    const answer = (input?.value || '').trim();
+    const correct = answer.toLowerCase() === w.word.toLowerCase();
+    if (input) input.className = 'typing-input ' + (correct ? 'correct' : 'wrong');
+    return { num: i + 1, answer, correct };
+  });
+  showExamResult(results);
+}
+
+function addLog(msg) {
+  const log = document.getElementById('gradingLog');
+  log.textContent += msg + '\n';
+  log.scrollTop = log.scrollHeight;
+}
+
+function showExamResult(results) {
+  document.getElementById('examGrading').style.display = 'none';
+  document.getElementById('examResult').style.display = 'block';
+
+  const correct = results.filter(r => r.correct).length;
+  document.getElementById('scoreNum').textContent = correct;
+
+  let grade = '', color = '';
+  if (correct >= 90) { grade = '🏆 최우수'; color = '#6366f1'; }
+  else if (correct >= 80) { grade = '🥇 우수'; color = '#10b981'; }
+  else if (correct >= 70) { grade = '🥈 보통'; color = '#f59e0b'; }
+  else if (correct >= 60) { grade = '🥉 노력 필요'; color = '#f87171'; }
+  else { grade = '📚 더 공부해요'; color = '#e11d48'; }
+  const gradeEl = document.getElementById('scoreGrade');
+  gradeEl.textContent = grade;
+  gradeEl.style.color = color;
+
+  const wrongItems = results.filter(r => !r.correct);
+  const wrongList = document.getElementById('wrongList');
+  if (wrongItems.length === 0) {
+    wrongList.innerHTML = '<div style="text-align:center;padding:1.25rem;color:#10b981;font-weight:600;font-size:16px;">🎉 100점 만점! 완벽해요!</div>';
+  } else {
+    wrongList.innerHTML = `
+      <div class="wrong-title">❌ 틀린 단어 ${wrongItems.length}개</div>
+      <div class="wrong-grid">
+        ${wrongItems.map(r => {
+          const w = examWords[r.num - 1];
+          return `<div class="wrong-item">
+            <div class="w-num">#${r.num}</div>
+            <div class="w-ko">${w.meaning.split(',')[0].trim()}</div>
+            <div class="w-ans">✅ ${w.word}</div>
+            ${r.answer ? `<div class="w-mine">✏️ ${r.answer}</div>` : '<div class="w-mine">✏️ (미기재)</div>'}
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+}
+
+function retryExam() {
+  document.getElementById('examResult').style.display = 'none';
+  document.getElementById('examIntro').style.display = 'block';
+  generateExam();
+}
 </script>
 </body>
 </html>
